@@ -1,0 +1,14 @@
+{
+  "name": "generador-menus-redox",
+  "version": "1.0.0",
+  "description": "Generador de menús basado en Filosofía Redox",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/",
+    "start": "live-server --port=3000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dietaryplus/generador-menu.git"
+  }
+}
