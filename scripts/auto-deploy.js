@@ -30,7 +30,7 @@ async function autoDeploy() {
         await runCommand(`git commit -m "${commitMessage}"`);
 
         console.log('Subiendo a GitHub...');
-        await runCommand('git push origin main');
+        await runCommand('git push origin master');
 
         console.log('Deploy completado!');
 
