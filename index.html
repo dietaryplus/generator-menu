@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Menús Redox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .form-section {
+            display: block;
+        }
+        
+        .preview-section {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .radio-option:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .radio-option input[type="radio"]:checked + .option-content {
+            color: #2980b9;
+            font-weight: 600;
+        }
+        
+        .radio-option input[type="radio"]:checked ~ .option-icon {
+            background: #3498db;
+            color: white;
+        }
+        
+        .option-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .option-content p {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .option-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-option {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-option:hover {
+            background: #e3f2fd;
+            border-color: #3498db;
+        }
+        
+        .checkbox-option input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-option input[type="checkbox"]:checked + span {
+            color: #2980b9;
+            font-weight: 600;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .preview-menu {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .preview-menu h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .menu-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .menu-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.85em;
+            vertical-align: top;
+        }
+        
+        .menu-table .meal-label {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            width: 120px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Generador de Menús Redox</h1>
+            <p>Crea planes nutricionales personalizados basados en la Filosofía Redox</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- FORMULARIO -->
+            <div class="form-section" id="formSection">
+                <div class="form-group">
+                    <label for="patientName">👤 Nombre del Paciente</label>
+                    <input type="text" id="patientName" placeholder="Ej: María García" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>🎯 Condición Principal (la más urgente a tratar)</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="constipation" name="condition" value="estreñimiento">
+                            <div class="option-content">
+                                <h3>Estreñimiento Severo</h3>
+                                <p>0-2 deposiciones/semana, distensión, dolor abdominal</p>
+                            </div>
+                            <div class="option-icon">💧</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="pcos" name="condition" value="sop">
+                            <div class="option-content">
+                                <h3>SOP (Síndrome Ovario Poliquístico)</h3>
+                                <p>Resistencia insulínica, hiperandrogenismo, disbiosis</p>
+                            </div>
+                            <div class="option-icon">⚖️</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="weightloss" name="condition" value="perdida-peso">
+                            <div class="option-content">
+                                <h3>Pérdida de Peso</h3>
+                                <p>Reducción de volumen sin efecto rebote</p>
+                            </div>
+                            <div class="option-icon">📉</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="inflammation" name="condition" value="inflamacion">
+                            <div class="option-content">
+                                <h3>Inflamación Sistémica</h3>
+                                <p>Artritis, fatiga, dolor crónico, marcadores elevados</p>
+                            </div>
+                            <div class="option-icon">🔥</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>➕ Condiciones Secundarias (que también quiere mejorar)</label>
+                    <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 15px;">Selecciona todas las que apliquen. El menú se adaptará para abordar múltiples problemas.</p>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-digestive" value="problemas-digestivos">
+                            <span>Problemas Digestivos (gases, hinchazón, diarreas)</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-fatigue" value="fatiga-cronica">
+                            <span>Fatiga Crónica / Falta de Energía</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-sleep" value="problemas-sueño">
+                            <span>Problemas de Sueño / Insomnio</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-anxiety" value="ansiedad-estres">
+                            <span>Ansiedad / Estrés / Antojos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-skin" value="problemas-piel">
+                            <span>Problemas de Piel (acné, eczemas, dermatitis)</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-hair" value="caida-cabello">
+                            <span>Caída del Cabello / Alopecia</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-joints" value="dolor-articular">
+                            <span>Dolores Articulares / Musculares</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-circulation" value="mala-circulacion">
+                            <span>Mala Circulación / Retención Líquidos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-menopause" value="menopausia">
+                            <span>Síntomas Menopaúsicos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-thyroid" value="tiroides">
+                            <span>Problemas Tiroideos (hipo/hipertiroidismo)</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-cholesterol" value="colesterol-alto">
+                            <span>Colesterol Alto / Triglicéridos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="secondary-hypertension" value="hipertension">
+                            <span>Hipertensión Arterial</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>⚕️ Terapias Físicas Redox</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="infrared" value="infrarrojo">
+                            <span>Terapia Infrarrojo</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="thermogenesis" value="termogenesis">
+                            <span>Termogénesis</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="vagal" value="vagal">
+                            <span>Estimulación Vagal</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="breathing" value="respiracion">
+                            <span>Técnicas Respiración</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>🚫 Exclusiones Alimentarias</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="gluten-free" value="sin-gluten">
+                            <span>Sin Gluten</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="dairy-free" value="sin-lacteos">
+                            <span>Sin Lácteos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="nuts-free" value="sin-frutos-secos">
+                            <span>Sin Frutos Secos</span>
+                        </div>
+                        
+                        <div class="checkbox-option">
+                            <input type="checkbox" id="eggs-free" value="sin-huevos">
+                            <span>Sin Huevos</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn" onclick="generateMenu()">
+                        🚀 Generar Menú Redox
+                    </button>
+                </div>
+            </div>
+            
+            <!-- LOADING -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <h3>Generando tu menú personalizado...</h3>
+                <p>Aplicando principios de la Filosofía Redox</p>
+            </div>
+            
+            <!-- PREVIEW -->
+            <div class="preview-section" id="previewSection">
+                <div class="success-message">
+                    ✅ <strong>Menú generado exitosamente!</strong> Revisa el contenido antes de descargar.
+                </div>
+                
+                <div class="preview-menu" id="menuPreview">
+                    <!-- El menú se generará aquí dinámicamente -->
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="goBack()">
+                        ← Volver al Formulario
+                    </button>
+                    <button class="btn" onclick="downloadPDF()">
+                        📄 Descargar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de recetas Redox
+        const baseDatosRedox = {
+            estreñimiento: {
+                nombre: "Protocolo Anti-Estreñimiento",
+                protocolo: "500ml agua + limón + sal + 2cda MCT al despertar • Infrarrojo 2x/día • Hidratación 4-5L diarios",
+                horarios: ["7:00", "7:30", "10:30", "13:30", "16:30", "20:00"],
+                momentos: ["DESPERTAR", "DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"],
+                alimentos: {
+                    despertar: [
+                        "Agua tibia + limón + sal + MCT",
+                        "Protocolo base hidratación",
+                        "Activación metabólica matinal"
+                    ],
+                    desayunos: [
+                        "Batido plátano + nueces + cacao + leche coco + aguacate + mantequilla",
+                        "Tortilla 3 huevos espinacas + aguacate + mantequilla pasto",
+                        "Revuelto 2 huevos champiñones + aguacate + mantequilla",
+                        "Batido verde espinacas + aguacate + coco + huevos pochados"
+                    ],
+                    almuerzos: [
+                        "6-8 ciruelas pasas remojadas + agua",
+                        "Compota manzana casera + canela",
+                        "Plátano maduro + nueces",
+                        "Papaya fresca (enzimas)"
+                    ],
+                    comidas: [
+                        "Ensalada + Puré coco-zanahoria-cebolla + Salmón plancha + Chocolate 85%",
+                        "Ensalada + Puré calabacín-coco + Caballa horno + Chocolate",
+                        "Ensalada + Puré calabaza-coco + Ternera plancha + Chocolate",
+                        "Ensalada + Puré zanahoria-coco + Sardinas frescas + Chocolate"
+                    ],
+                    meriendas: [
+                        "Kéfir cabra 200ml + aceite coco + almendras",
+                        "Kéfir + aceite coco + nueces",
+                        "Kéfir + aceite coco + mix frutos secos"
+                    ],
+                    cenas: [
+                        "Caldo huesos + Boniato horno + mantequilla + Proteína + Infusión 22h",
+                        "Caldo graso + Calabaza asada + mantequilla + Proteína + Infusión 22h",
+                        "Caldo nutritivo + Verduras asadas + mantequilla + Proteína + Infusión 22h"
+                    ]
+                }
+            },
+            sop: {
+                nombre: "Protocolo SOP - Regulación Hormonal",
+                protocolo: "Ayuno natural nocturno • Proteína alta matinal • Terapias físicas • Anti-inflamatorio",
+                horarios: ["7:00", "7:30", "10:30", "13:30", "16:30", "20:00"],
+                momentos: ["DESPERTAR", "DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"],
+                alimentos: {
+                    despertar: [
+                        "Agua tibia + limón + electrolitos",
+                        "Hidratación base SOP",
+                        "Activación hormonal matinal"
+                    ],
+                    desayunos: [
+                        "Tortilla 3 huevos + aguacate + mantequilla (proteína alta)",
+                        "Salmón + aguacate + huevos + aceite oliva",
+                        "Revuelto proteínas + vegetales + grasas calidad",
+                        "Batido proteico + MCT + frutos rojos"
+                    ],
+                    almuerzos: [
+                        "Frutos rojos + nueces (antioxidantes)",
+                        "Aguacate + semillas calabaza",
+                        "Chocolate 85% + almendras",
+                        "Kéfir + aceite coco"
+                    ],
+                    comidas: [
+                        "Ensalada + Verduras crucíferas + Pescado graso + AOVE",
+                        "Ensalada + Vegetales fermentados + Carne pastoreo + AOVE",
+                        "Ensalada + Verduras anti-androgénicas + Proteína + Grasas",
+                        "Ensalada + Probióticos naturales + Proteína + AOVE"
+                    ],
+                    meriendas: [
+                        "Kéfir + aceite coco + canela",
+                        "Aguacate + sal marina",
+                        "Nueces + chocolate 85%"
+                    ],
+                    cenas: [
+                        "Proteína ligera + Verduras vapor + AOVE + Infusión",
+                        "Pescado + Ensalada + Aguacate + Infusión",
+                        "Caldo huesos + Verduras + Proteína + Infusión"
+                    ]
+                }
+            }
+        };
+
+        let menuGenerado = null;
+
+        function generateMenu() {
+            // Validar formulario
+            const patientName = document.getElementById('patientName').value.trim();
+            const condition = document.querySelector('input[name="condition"]:checked');
+            
+            if (!patientName) {
+                alert('Por favor, ingresa el nombre del paciente');
+                return;
+            }
+            
+            if (!condition) {
+                alert('Por favor, selecciona una condición principal');
+                return;
+            }
+
+            // Mostrar loading
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('loadingSection').style.display = 'block';
+
+            // Simular procesamiento
+            setTimeout(() => {
+                const conditionValue = condition.value;
+                const therapies = getSelectedTherapies();
+                const exclusions = getSelectedExclusions();
+                const secondaryConditions = getSecondaryConditions();
+                
+                // Generar menú
+                menuGenerado = createWeekMenu(conditionValue, patientName, therapies, exclusions, secondaryConditions);
+                
+                // Mostrar preview
+                displayMenuPreview(menuGenerado);
+                
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+            }, 2000);
+        }
+
+        function getSelectedTherapies() {
+            const therapies = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                if (['infrarrojo', 'termogenesis', 'vagal', 'respiracion'].includes(checkbox.value)) {
+                    therapies.push(checkbox.value);
+                }
+            });
+            return therapies;
+        }
+
+        function getSelectedExclusions() {
+            const exclusions = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                if (['sin-gluten', 'sin-lacteos', 'sin-frutos-secos', 'sin-huevos'].includes(checkbox.value)) {
+                    exclusions.push(checkbox.value);
+                }
+            });
+            return exclusions;
+        }
+
+        function getSecondaryConditions() {
+            const secondary = [];
+            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
+                const secondaryValues = [
+                    'problemas-digestivos', 'fatiga-cronica', 'problemas-sueño', 'ansiedad-estres',
+                    'problemas-piel', 'caida-cabello', 'dolor-articular', 'mala-circulacion',
+                    'menopausia', 'tiroides', 'colesterol-alto', 'hipertension'
+                ];
+                if (secondaryValues.includes(checkbox.value)) {
+                    secondary.push(checkbox.value);
+                }
+            });
+            return secondary;
+        }
+
+        function createWeekMenu(condition, patientName, therapies, exclusions, secondaryConditions) {
+            const data = baseDatosRedox[condition];
+            if (!data) return null;
+
+            const menu = {
+                paciente: patientName,
+                condicion: data.nombre,
+                secundarias: secondaryConditions,
+                protocolo: data.protocolo,
+                terapias: therapies,
+                exclusiones: exclusions,
+                semana: []
+            };
+
+            // Modificar protocolo según condiciones secundarias
+            menu.protocolo = adaptProtocolForSecondaryConditions(data.protocolo, secondaryConditions);
+
+            const dias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+            
+            dias.forEach((dia, index) => {
+                const diaMenu = {
+                    dia: dia,
+                    comidas: []
+                };
+
+                data.momentos.forEach((momento, momentoIndex) => {
+                    let alimento = "";
+                    
+                    if (momento === 'DESPERTAR') {
+                        alimento = data.alimentos.despertar[index % data.alimentos.despertar.length];
+                    } else if (momento === 'DESAYUNO') {
+                        alimento = data.alimentos.desayunos[index % data.alimentos.desayunos.length];
+                    } else if (momento === 'ALMUERZO') {
+                        alimento = data.alimentos.almuerzos[index % data.alimentos.almuerzos.length];
+                    } else if (momento === 'COMIDA') {
+                        alimento = data.alimentos.comidas[index % data.alimentos.comidas.length];
+                    } else if (momento === 'MERIENDA') {
+                        alimento = data.alimentos.meriendas[index % data.alimentos.meriendas.length];
+                    } else if (momento === 'CENA') {
+                        alimento = data.alimentos.cenas[index % data.alimentos.cenas.length];
+                    }
+                    
+                    // Aplicar exclusiones
+                    alimento = applyExclusions(alimento, exclusions);
+                    
+                    // Adaptar según condiciones secundarias
+                    alimento = adaptForSecondaryConditions(alimento, secondaryConditions, momento);
+                    
+                    diaMenu.comidas.push({
+                        momento: momento,
+                        horario: data.horarios[momentoIndex],
+                        alimento: alimento
+                    });
+                });
+
+                menu.semana.push(diaMenu);
+            });
+
+            return menu;
+        }
+
+        function adaptProtocolForSecondaryConditions(baseProtocol, secondaryConditions) {
+            let adaptedProtocol = baseProtocol;
+            
+            secondaryConditions.forEach(condition => {
+                switch(condition) {
+                    case 'fatiga-cronica':
+                        adaptedProtocol += " • Vitaminas B naturales • Hierro hemo";
+                        break;
+                    case 'problemas-sueño':
+                        adaptedProtocol += " • Magnesio nocturno • Infusiones relajantes";
+                        break;
+                    case 'ansiedad-estres':
+                        adaptedProtocol += " • Adaptógenos • Técnicas respiración";
+                        break;
+                    case 'caida-cabello':
+                        adaptedProtocol += " • Biotina natural • Proteínas específicas";
+                        break;
+                    case 'menopausia':
+                        adaptedProtocol += " • Fitoestrógenos • Calcio natural";
+                        break;
+                    case 'tiroides':
+                        adaptedProtocol += " • Yodo natural • Selenio • Zinc";
+                        break;
+                    case 'colesterol-alto':
+                        adaptedProtocol += " • Omega-3 • Fibra soluble • Esteroles";
+                        break;
+                    case 'hipertension':
+                        adaptedProtocol += " • Potasio • Magnesio • Reducir sodio";
+                        break;
+                }
+            });
+            
+            return adaptedProtocol;
+        }
+
+        function adaptForSecondaryConditions(alimento, secondaryConditions, momento) {
+            let adaptedAlimento = alimento;
+            
+            secondaryConditions.forEach(condition => {
+                switch(condition) {
+                    case 'fatiga-cronica':
+                        if (momento === 'DESAYUNO') {
+                            adaptedAlimento += " + Espinacas (hierro)";
+                        }
+                        break;
+                    case 'caida-cabello':
+                        if (momento === 'COMIDA') {
+                            adaptedAlimento += " + Semillas calabaza (zinc)";
+                        }
+                        break;
+                    case 'problemas-sueño':
+                        if (momento === 'CENA') {
+                            adaptedAlimento += " + Manzanilla";
+                        }
+                        break;
+                    case 'menopausia':
+                        if (momento === 'ALMUERZO') {
+                            adaptedAlimento += " + Semillas lino (fitoestrógenos)";
+                        }
+                        break;
+                    case 'colesterol-alto':
+                        if (momento === 'COMIDA') {
+                            adaptedAlimento = adaptedAlimento.replace('Carne', 'Pescado azul');
+                        }
+                        break;
+                }
+            });
+            
+            return adaptedAlimento;
+        }
+
+        function applyExclusions(alimento, exclusions) {
+            let result = alimento;
+            
+            exclusions.forEach(exclusion => {
+                switch(exclusion) {
+                    case 'sin-huevos':
+                        result = result.replace(/huevos?|tortilla|revuelto/gi, 'proteína alternativa');
+                        break;
+                    case 'sin-lacteos':
+                        result = result.replace(/mantequilla|kéfir|queso/gi, 'alternativa vegetal');
+                        break;
+                    case 'sin-frutos-secos':
+                        result = result.replace(/nueces|almendras/gi, 'semillas');
+                        break;
+                    case 'sin-gluten':
+                        result = result.replace(/avena|pan|trigo/gi, 'alternativa sin gluten');
+                        break;
+                }
+            });
+            
+            return result;
+        }
+
+        function displayMenuPreview(menu) {
+            const preview = document.getElementById('menuPreview');
+            
+            let html = `
+                <h3>📋 Menú para: ${menu.paciente}</h3>
+                <p><strong>Condición:</strong> ${menu.condicion}</p>
+                <p><strong>Protocolo:</strong> ${menu.protocolo}</p>
+                
+                <table class="menu-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;"></th>
+                            <th>LUNES</th>
+                            <th>MARTES</th>
+                            <th>MIÉRCOLES</th>
+                            <th>JUEVES</th>
+                            <th>VIERNES</th>
+                            <th>SÁBADO</th>
+                            <th>DOMINGO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Crear filas por momento del día
+            const momentos = ['DESPERTAR', 'DESAYUNO', 'ALMUERZO', 'COMIDA', 'MERIENDA', 'CENA'];
+            const horarios = ['7:00', '7:30', '10:30', '13:30', '16:30', '20:00'];
+            
+            momentos.forEach((momento, momentoIndex) => {
+                html += `<tr>`;
+                html += `<td class="meal-label">${momento}<br><small>${horarios[momentoIndex]}</small></td>`;
+                
+                menu.semana.forEach(dia => {
+                    const comida = dia.comidas.find(c => c.momento === momento);
+                    html += `<td>${comida ? comida.alimento : ''}</td>`;
+                });
+                
+                html += `</tr>`;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            preview.innerHTML = html;
+        }
+
+        function goBack() {
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('formSection').style.display = 'block';
+        }
+
+        function downloadPDF() {
+            if (!menuGenerado) {
+                alert('No hay menú generado para descargar');
+                return;
+            }
+            
+            // Por ahora mostramos un mensaje, en la próxima versión implementaremos jsPDF
+            alert('🚧 Función de descarga PDF en desarrollo!\n\nPor ahora puedes:\n1. Hacer captura de pantalla\n2. Imprimir la página (Ctrl+P)\n3. Copiar el contenido\n\n¡En la próxima versión tendrás descarga automática!');
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Marcar opciones por defecto
+            document.getElementById('constipation').checked = true;
+            document.getElementById('infrared').checked = true;
+            document.getElementById('vagal').checked = true;
+        });
+    </script>
+</body>
+</html>
