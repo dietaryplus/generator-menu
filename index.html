@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Menús Redox</title>
+    <title>Generador de Menús Redox - Dietaryplus</title>
+    <meta name="description" content="Crea planes nutricionales personalizados basados en la Filosofía Redox de Dietaryplus">
+    <meta name="keywords" content="nutrición, redox, dietaryplus, menús, salud, estreñimiento, SOP">
+    <meta name="author" content="Dietaryplus">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+    
     <style>
         * {
             margin: 0;
@@ -291,6 +296,76 @@
             text-align: center;
         }
         
+        .footer {
+            background: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+        
+        .duration-selector {
+            display: none;
+        }
+        
+        .phase-card {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .phase-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .phase-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .phase-title {
+            flex: 1;
+        }
+        
+        .phase-title h4 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+        
+        .phase-title p {
+            margin: 0;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .week-menu {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .week-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 margin: 10px;
@@ -366,6 +441,70 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>📅 Tipo de Plan</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="plan-semanal" name="planType" value="semanal">
+                            <div class="option-content">
+                                <h3>Plan Semanal</h3>
+                                <p>1 menú para empezar inmediatamente</p>
+                            </div>
+                            <div class="option-icon">📋</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="plan-evolutivo" name="planType" value="evolutivo">
+                            <div class="option-content">
+                                <h3>Plan Evolutivo Estratégico</h3>
+                                <p>Múltiples menús con visión a largo plazo</p>
+                            </div>
+                            <div class="option-icon">🔄</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group duration-selector" id="durationSelector">
+                    <label>⏱️ Duración del Tratamiento</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="duration-4" name="duration" value="4">
+                            <div class="option-content">
+                                <h3>4 Semanas - Choque Intensivo</h3>
+                                <p>Para problemas agudos. Máxima intensidad, resultados rápidos.</p>
+                            </div>
+                            <div class="option-icon">⚡</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="duration-8" name="duration" value="8">
+                            <div class="option-content">
+                                <h3>8 Semanas - Tratamiento Completo</h3>
+                                <p>Choque + estabilización + optimización. Más popular.</p>
+                            </div>
+                            <div class="option-icon">🎯</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="duration-12" name="duration" value="12">
+                            <div class="option-content">
+                                <h3>12 Semanas - Transformación Profunda</h3>
+                                <p>Para casos complejos. Abordaje integral y sostenible.</p>
+                            </div>
+                            <div class="option-icon">🌟</div>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" id="duration-16" name="duration" value="16">
+                            <div class="option-content">
+                                <h3>16 Semanas - Regeneración Total</h3>
+                                <p>Para casos severos. Nueva versión de ti mismo.</p>
+                            </div>
+                            <div class="option-icon">🚀</div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="form-group">
                     <label>➕ Condiciones Secundarias (que también quiere mejorar)</label>
@@ -373,62 +512,32 @@
                     <div class="checkbox-group">
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-digestive" value="problemas-digestivos">
-                            <span>Problemas Digestivos (gases, hinchazón, diarreas)</span>
+                            <span>Problemas Digestivos</span>
                         </div>
                         
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-fatigue" value="fatiga-cronica">
-                            <span>Fatiga Crónica / Falta de Energía</span>
+                            <span>Fatiga Crónica</span>
                         </div>
                         
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-sleep" value="problemas-sueño">
-                            <span>Problemas de Sueño / Insomnio</span>
+                            <span>Problemas de Sueño</span>
                         </div>
                         
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-anxiety" value="ansiedad-estres">
-                            <span>Ansiedad / Estrés / Antojos</span>
+                            <span>Ansiedad / Estrés</span>
                         </div>
                         
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-skin" value="problemas-piel">
-                            <span>Problemas de Piel (acné, eczemas, dermatitis)</span>
+                            <span>Problemas de Piel</span>
                         </div>
                         
                         <div class="checkbox-option">
                             <input type="checkbox" id="secondary-hair" value="caida-cabello">
-                            <span>Caída del Cabello / Alopecia</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-joints" value="dolor-articular">
-                            <span>Dolores Articulares / Musculares</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-circulation" value="mala-circulacion">
-                            <span>Mala Circulación / Retención Líquidos</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-menopause" value="menopausia">
-                            <span>Síntomas Menopaúsicos</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-thyroid" value="tiroides">
-                            <span>Problemas Tiroideos (hipo/hipertiroidismo)</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-cholesterol" value="colesterol-alto">
-                            <span>Colesterol Alto / Triglicéridos</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="secondary-hypertension" value="hipertension">
-                            <span>Hipertensión Arterial</span>
+                            <span>Caída del Cabello</span>
                         </div>
                     </div>
                 </div>
@@ -449,11 +558,6 @@
                         <div class="checkbox-option">
                             <input type="checkbox" id="vagal" value="vagal">
                             <span>Estimulación Vagal</span>
-                        </div>
-                        
-                        <div class="checkbox-option">
-                            <input type="checkbox" id="breathing" value="respiracion">
-                            <span>Técnicas Respiración</span>
                         </div>
                     </div>
                 </div>
@@ -485,7 +589,7 @@
                 
                 <div class="actions">
                     <button class="btn" onclick="generateMenu()">
-                        🚀 Generar Menú Redox
+                        🚀 Generar Plan Redox
                     </button>
                 </div>
             </div>
@@ -493,14 +597,14 @@
             <!-- LOADING -->
             <div class="loading" id="loadingSection">
                 <div class="spinner"></div>
-                <h3>Generando tu menú personalizado...</h3>
+                <h3>Generando tu plan personalizado...</h3>
                 <p>Aplicando principios de la Filosofía Redox</p>
             </div>
             
             <!-- PREVIEW -->
             <div class="preview-section" id="previewSection">
                 <div class="success-message">
-                    ✅ <strong>Menú generado exitosamente!</strong> Revisa el contenido antes de descargar.
+                    ✅ <strong>Plan generado exitosamente!</strong> Revisa el contenido antes de descargar.
                 </div>
                 
                 <div class="preview-menu" id="menuPreview">
@@ -517,90 +621,139 @@
                 </div>
             </div>
         </div>
+        
+        <div class="footer">
+            <p>© 2024 Dietaryplus - Generador de Menús Redox | <strong>Versión 2.0 Completa</strong></p>
+        </div>
     </div>
 
     <script>
-        // Base de datos de recetas Redox
+        // Base de datos Redox expandida
         const baseDatosRedox = {
             estreñimiento: {
                 nombre: "Protocolo Anti-Estreñimiento",
-                protocolo: "500ml agua + limón + sal + 2cda MCT al despertar • Infrarrojo 2x/día • Hidratación 4-5L diarios",
+                protocolo: "Hidratación intensiva + MCT + Infrarrojo + Estimulación vagal",
                 horarios: ["7:00", "7:30", "10:30", "13:30", "16:30", "20:00"],
                 momentos: ["DESPERTAR", "DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"],
                 alimentos: {
                     despertar: [
-                        "Agua tibia + limón + sal + MCT",
-                        "Protocolo base hidratación",
-                        "Activación metabólica matinal"
+                        "500ml agua tibia + limón + sal marina + 2 cda MCT",
+                        "Protocolo hidratación base + aceites específicos",
+                        "Activación matinal + estimulación biliar"
                     ],
                     desayunos: [
-                        "Batido plátano + nueces + cacao + leche coco + aguacate + mantequilla",
-                        "Tortilla 3 huevos espinacas + aguacate + mantequilla pasto",
-                        "Revuelto 2 huevos champiñones + aguacate + mantequilla",
-                        "Batido verde espinacas + aguacate + coco + huevos pochados"
+                        "Batido plátano + nueces + cacao + leche coco + aguacate + mantequilla pasto",
+                        "Tortilla 3 huevos pastoreo + espinacas + aguacate + mantequilla pasto generosa",
+                        "Revuelto 2 huevos + champiñones + aguacate + semillas calabaza + mantequilla",
+                        "Batido verde: espinacas + aguacate + leche coco + huevos pochados + mantequilla"
                     ],
                     almuerzos: [
-                        "6-8 ciruelas pasas remojadas + agua",
-                        "Compota manzana casera + canela",
-                        "Plátano maduro + nueces",
-                        "Papaya fresca (enzimas)"
+                        "6-8 ciruelas pasas remojadas overnight + 500ml agua pura",
+                        "Compota manzana casera + canela + 500ml agua",
+                        "Plátano maduro + nueces crudas + hidratación abundante",
+                        "Papaya fresca (enzimas digestivas) + hidratación constante"
                     ],
                     comidas: [
-                        "Ensalada + Puré coco-zanahoria-cebolla + Salmón plancha + Chocolate 85%",
-                        "Ensalada + Puré calabacín-coco + Caballa horno + Chocolate",
-                        "Ensalada + Puré calabaza-coco + Ternera plancha + Chocolate",
-                        "Ensalada + Puré zanahoria-coco + Sardinas frescas + Chocolate"
+                        "Ensalada variada + AOVE + Puré coco-zanahoria-cebolla + Salmón plancha + Chocolate 85%",
+                        "Ensalada + chucrut casero + Puré calabacín-coco + Caballa horno + Chocolate + ciruelas",
+                        "Ensalada + kimchi + Puré calabaza-coco + Ternera plancha + Chocolate + frutos rojos",
+                        "Ensalada completa + Puré zanahoria-coco + Sardinas frescas + Chocolate + ciruelas"
                     ],
                     meriendas: [
-                        "Kéfir cabra 200ml + aceite coco + almendras",
-                        "Kéfir + aceite coco + nueces",
-                        "Kéfir + aceite coco + mix frutos secos"
+                        "Kéfir cabra 200ml + 1 cda aceite coco + almendras crudas 20g",
+                        "Kéfir + aceite coco + nueces 20g",
+                        "Kéfir + aceite coco + mix frutos secos naturales"
                     ],
                     cenas: [
-                        "Caldo huesos + Boniato horno + mantequilla + Proteína + Infusión 22h",
-                        "Caldo graso + Calabaza asada + mantequilla + Proteína + Infusión 22h",
-                        "Caldo nutritivo + Verduras asadas + mantequilla + Proteína + Infusión 22h"
+                        "Caldo huesos + tuétano + Boniato horno + mantequilla + Pechuga pavo + Infusión sen 22h",
+                        "Caldo graso + Calabaza asada + mantequilla + Merluza vapor + Infusión + aceite coco 22h",
+                        "Caldo nutritivo + Boniato + mantequilla + Pollo ecológico + Infusión sen + coco 22h"
                     ]
                 }
             },
             sop: {
                 nombre: "Protocolo SOP - Regulación Hormonal",
-                protocolo: "Ayuno natural nocturno • Proteína alta matinal • Terapias físicas • Anti-inflamatorio",
-                horarios: ["7:00", "7:30", "10:30", "13:30", "16:30", "20:00"],
-                momentos: ["DESPERTAR", "DESAYUNO", "ALMUERZO", "COMIDA", "MERIENDA", "CENA"],
+                protocolo: "Anti-inflamatorio + Proteína alta + Regulación insulínica + Modulación andrógenos",
+                horarios: ["7:00", "11:00", "15:00", "20:00"],
+                momentos: ["DESPERTAR", "DESAYUNO", "COMIDA", "CENA"],
                 alimentos: {
                     despertar: [
-                        "Agua tibia + limón + electrolitos",
-                        "Hidratación base SOP",
-                        "Activación hormonal matinal"
+                        "Agua tibia + limón + sal marina + electrolitos",
+                        "Base hormonal: hidratación + minerales",
+                        "Activación SOP: agua + citrato natural"
                     ],
                     desayunos: [
-                        "Tortilla 3 huevos + aguacate + mantequilla (proteína alta)",
-                        "Salmón + aguacate + huevos + aceite oliva",
-                        "Revuelto proteínas + vegetales + grasas calidad",
-                        "Batido proteico + MCT + frutos rojos"
-                    ],
-                    almuerzos: [
-                        "Frutos rojos + nueces (antioxidantes)",
-                        "Aguacate + semillas calabaza",
-                        "Chocolate 85% + almendras",
-                        "Kéfir + aceite coco"
+                        "Huevos pastoreo (2-3) + aguacate grande + mantequilla pasto + aceite oliva",
+                        "Salmón ahumado + aguacate + huevos + semillas calabaza + AOVE",
+                        "Tortilla proteica + vegetales + grasas antiinflamatorias + mantequilla",
+                        "Revuelto alto en proteína + aguacate + aceite coco + frutos secos"
                     ],
                     comidas: [
-                        "Ensalada + Verduras crucíferas + Pescado graso + AOVE",
-                        "Ensalada + Vegetales fermentados + Carne pastoreo + AOVE",
-                        "Ensalada + Verduras anti-androgénicas + Proteína + Grasas",
-                        "Ensalada + Probióticos naturales + Proteína + AOVE"
-                    ],
-                    meriendas: [
-                        "Kéfir + aceite coco + canela",
-                        "Aguacate + sal marina",
-                        "Nueces + chocolate 85%"
+                        "Ensalada abundante + Crucíferas al vapor + Pescado graso + AOVE abundante",
+                        "Ensalada + Fermentados naturales + Carne pastoreo + Grasas calidad",
+                        "Ensalada + Vegetales anti-androgénicos + Proteína alta + Aceite oliva",
+                        "Ensalada + Probióticos naturales + Proteína completa + AOVE"
                     ],
                     cenas: [
-                        "Proteína ligera + Verduras vapor + AOVE + Infusión",
-                        "Pescado + Ensalada + Aguacate + Infusión",
-                        "Caldo huesos + Verduras + Proteína + Infusión"
+                        "Proteína ligera + Verduras vapor + AOVE + Infusión relajante",
+                        "Pescado blanco + Ensalada + Aguacate + Infusión hormonal",
+                        "Caldo huesos + Verduras + Proteína ligera + Infusión equilibrante"
+                    ]
+                }
+            },
+            'perdida-peso': {
+                nombre: "Protocolo Pérdida de Peso",
+                protocolo: "Ayuno intermitente + Termogénesis + Cetosis nutricional + Activación metabólica",
+                horarios: ["7:00", "12:00", "18:00"],
+                momentos: ["DESPERTAR", "COMIDA", "CENA"],
+                alimentos: {
+                    despertar: [
+                        "Agua + limón + sal + MCT (termogénico)",
+                        "Café + aceite coco + mantequilla (cetogénico)",
+                        "Té verde + aceite MCT (lipolítico)"
+                    ],
+                    comidas: [
+                        "Ensalada + Proteína alta + Grasas termogénicas + Vegetales",
+                        "Verduras + Pescado + AOVE + Aguacate + Frutos secos",
+                        "Proteína completa + Vegetales + Grasas específicas + Especias"
+                    ],
+                    cenas: [
+                        "Proteína ligera + Verduras + Grasas + Infusión",
+                        "Pescado + Ensalada + Aceite oliva + Té",
+                        "Caldo + Vegetales + Proteína + Hierbas"
+                    ]
+                }
+            },
+            inflamacion: {
+                nombre: "Protocolo Anti-Inflamatorio",
+                protocolo: "Modulación inmune + Omega-3 + Antioxidantes + Eliminación pro-inflamatorios",
+                horarios: ["7:00", "8:00", "13:00", "16:00", "20:00"],
+                momentos: ["DESPERTAR", "DESAYUNO", "COMIDA", "MERIENDA", "CENA"],
+                alimentos: {
+                    despertar: [
+                        "Agua + limón + cúrcuma + jengibre",
+                        "Hidratación + especias anti-inflamatorias",
+                        "Base alcalina + moduladores naturales"
+                    ],
+                    desayunos: [
+                        "Batido antioxidante + omega-3 + frutos rojos",
+                        "Huevos + aguacate + cúrcuma + aceite oliva",
+                        "Smoothie verde + semillas + grasas anti-inflamatorias"
+                    ],
+                    comidas: [
+                        "Ensalada + Pescado azul + AOVE + Vegetales colores",
+                        "Verduras + Salmón + Especias + Frutos secos",
+                        "Crucíferas + Proteína + Cúrcuma + Jengibre + AOVE"
+                    ],
+                    meriendas: [
+                        "Frutos rojos + nueces + té verde",
+                        "Chocolate 85% + almendras + infusión",
+                        "Aguacate + semillas + especias"
+                    ],
+                    cenas: [
+                        "Caldo huesos + vegetales + cúrcuma + proteína ligera",
+                        "Pescado + ensalada + jengibre + aceite oliva",
+                        "Verduras + proteína + especias + infusión anti-inflamatoria"
                     ]
                 }
             }
@@ -608,143 +761,195 @@
 
         let menuGenerado = null;
 
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('constipation').checked = true;
+            document.getElementById('plan-semanal').checked = true;
+            document.getElementById('infrared').checked = true;
+            
+            // Manejar tipo de plan
+            document.querySelectorAll('input[name="planType"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const durationSelector = document.getElementById('durationSelector');
+                    if (this.value === 'evolutivo') {
+                        durationSelector.style.display = 'block';
+                        document.getElementById('duration-8').checked = true;
+                    } else {
+                        durationSelector.style.display = 'none';
+                    }
+                });
+            });
+        });
+
         function generateMenu() {
-            // Validar formulario
             const patientName = document.getElementById('patientName').value.trim();
             const condition = document.querySelector('input[name="condition"]:checked');
+            const planType = document.querySelector('input[name="planType"]:checked');
             
-            if (!patientName) {
-                alert('Por favor, ingresa el nombre del paciente');
+            if (!patientName || !condition || !planType) {
+                alert('Por favor, completa todos los campos obligatorios');
                 return;
             }
-            
-            if (!condition) {
-                alert('Por favor, selecciona una condición principal');
-                return;
+
+            if (planType.value === 'evolutivo') {
+                const duration = document.querySelector('input[name="duration"]:checked');
+                if (!duration) {
+                    alert('Por favor, selecciona la duración del tratamiento');
+                    return;
+                }
             }
 
             // Mostrar loading
             document.getElementById('formSection').style.display = 'none';
             document.getElementById('loadingSection').style.display = 'block';
 
-            // Simular procesamiento
             setTimeout(() => {
-                const conditionValue = condition.value;
-                const therapies = getSelectedTherapies();
-                const exclusions = getSelectedExclusions();
-                const secondaryConditions = getSecondaryConditions();
+                const data = {
+                    condition: condition.value,
+                    patientName: patientName,
+                    planType: planType.value,
+                    duration: planType.value === 'evolutivo' ? document.querySelector('input[name="duration"]:checked').value : null,
+                    therapies: getSelectedItems('checkbox', ['infrarrojo', 'termogenesis', 'vagal']),
+                    exclusions: getSelectedItems('checkbox', ['sin-gluten', 'sin-lacteos', 'sin-frutos-secos', 'sin-huevos']),
+                    secondaryConditions: getSelectedItems('checkbox', ['problemas-digestivos', 'fatiga-cronica', 'problemas-sueño', 'ansiedad-estres', 'problemas-piel', 'caida-cabello'])
+                };
+
+                if (data.planType === 'semanal') {
+                    menuGenerado = createWeeklyPlan(data);
+                } else {
+                    menuGenerado = createEvolutionaryPlan(data);
+                }
                 
-                // Generar menú
-                menuGenerado = createWeekMenu(conditionValue, patientName, therapies, exclusions, secondaryConditions);
-                
-                // Mostrar preview
-                displayMenuPreview(menuGenerado);
+                displayPlan(menuGenerado);
                 
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('previewSection').style.display = 'block';
-            }, 2000);
+            }, 2500);
         }
 
-        function getSelectedTherapies() {
-            const therapies = [];
-            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                if (['infrarrojo', 'termogenesis', 'vagal', 'respiracion'].includes(checkbox.value)) {
-                    therapies.push(checkbox.value);
+        function getSelectedItems(type, validValues) {
+            const selected = [];
+            document.querySelectorAll(`input[type="${type}"]:checked`).forEach(item => {
+                if (validValues.includes(item.value)) {
+                    selected.push(item.value);
                 }
             });
-            return therapies;
+            return selected;
         }
 
-        function getSelectedExclusions() {
-            const exclusions = [];
-            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                if (['sin-gluten', 'sin-lacteos', 'sin-frutos-secos', 'sin-huevos'].includes(checkbox.value)) {
-                    exclusions.push(checkbox.value);
-                }
-            });
-            return exclusions;
-        }
-
-        function getSecondaryConditions() {
-            const secondary = [];
-            document.querySelectorAll('input[type="checkbox"]:checked').forEach(checkbox => {
-                const secondaryValues = [
-                    'problemas-digestivos', 'fatiga-cronica', 'problemas-sueño', 'ansiedad-estres',
-                    'problemas-piel', 'caida-cabello', 'dolor-articular', 'mala-circulacion',
-                    'menopausia', 'tiroides', 'colesterol-alto', 'hipertension'
-                ];
-                if (secondaryValues.includes(checkbox.value)) {
-                    secondary.push(checkbox.value);
-                }
-            });
-            return secondary;
-        }
-
-        function createWeekMenu(condition, patientName, therapies, exclusions, secondaryConditions) {
-            const data = baseDatosRedox[condition];
-            if (!data) return null;
-
-            const menu = {
-                paciente: patientName,
-                condicion: data.nombre,
-                secundarias: secondaryConditions,
-                protocolo: data.protocolo,
-                terapias: therapies,
-                exclusiones: exclusions,
-                semana: []
+        function createWeeklyPlan(data) {
+            const conditionData = baseDatosRedox[data.condition];
+            return {
+                tipo: 'semanal',
+                paciente: data.patientName,
+                condicion: conditionData.nombre,
+                protocolo: adaptProtocol(conditionData.protocolo, data),
+                terapias: data.therapies,
+                exclusiones: data.exclusions,
+                menu: generateWeekMenu(conditionData, data)
             };
-
-            // Modificar protocolo según condiciones secundarias
-            menu.protocolo = adaptProtocolForSecondaryConditions(data.protocolo, secondaryConditions);
-
-            const dias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
-            
-            dias.forEach((dia, index) => {
-                const diaMenu = {
-                    dia: dia,
-                    comidas: []
-                };
-
-                data.momentos.forEach((momento, momentoIndex) => {
-                    let alimento = "";
-                    
-                    if (momento === 'DESPERTAR') {
-                        alimento = data.alimentos.despertar[index % data.alimentos.despertar.length];
-                    } else if (momento === 'DESAYUNO') {
-                        alimento = data.alimentos.desayunos[index % data.alimentos.desayunos.length];
-                    } else if (momento === 'ALMUERZO') {
-                        alimento = data.alimentos.almuerzos[index % data.alimentos.almuerzos.length];
-                    } else if (momento === 'COMIDA') {
-                        alimento = data.alimentos.comidas[index % data.alimentos.comidas.length];
-                    } else if (momento === 'MERIENDA') {
-                        alimento = data.alimentos.meriendas[index % data.alimentos.meriendas.length];
-                    } else if (momento === 'CENA') {
-                        alimento = data.alimentos.cenas[index % data.alimentos.cenas.length];
-                    }
-                    
-                    // Aplicar exclusiones
-                    alimento = applyExclusions(alimento, exclusions);
-                    
-                    // Adaptar según condiciones secundarias
-                    alimento = adaptForSecondaryConditions(alimento, secondaryConditions, momento);
-                    
-                    diaMenu.comidas.push({
-                        momento: momento,
-                        horario: data.horarios[momentoIndex],
-                        alimento: alimento
-                    });
-                });
-
-                menu.semana.push(diaMenu);
-            });
-
-            return menu;
         }
 
-        function adaptProtocolForSecondaryConditions(baseProtocol, secondaryConditions) {
+        function createEvolutionaryPlan(data) {
+            const conditionData = baseDatosRedox[data.condition];
+            const duration = parseInt(data.duration);
+            const phases = getPhaseStructure(duration);
+            
+            return {
+                tipo: 'evolutivo',
+                paciente: data.patientName,
+                condicion: conditionData.nombre,
+                duracion: duration,
+                protocolo: adaptProtocol(conditionData.protocolo, data),
+                terapias: data.therapies,
+                exclusiones: data.exclusiones,
+                fases: phases.map((phase, index) => ({
+                    numero: index + 1,
+                    nombre: phase.nombre,
+                    semanas: phase.semanas,
+                    objetivo: getPhaseObjective(data.condition, index + 1),
+                    menus: phase.semanas.map(semana => ({
+                        semana: semana,
+                        menu: generateWeekMenu(conditionData, data, index + 1, semana)
+                    }))
+                }))
+            };
+        }
+
+        function getPhaseStructure(duration) {
+            const structures = {
+                4: [
+                    { nombre: "Choque Intensivo", semanas: [1, 2] },
+                    { nombre: "Estabilización", semanas: [3, 4] }
+                ],
+                8: [
+                    { nombre: "Choque", semanas: [1, 2] },
+                    { nombre: "Estabilización", semanas: [3, 4] },
+                    { nombre: "Optimización", semanas: [5, 6] },
+                    { nombre: "Consolidación", semanas: [7, 8] }
+                ],
+                12: [
+                    { nombre: "Choque", semanas: [1, 2, 3] },
+                    { nombre: "Estabilización", semanas: [4, 5, 6] },
+                    { nombre: "Optimización", semanas: [7, 8, 9] },
+                    { nombre: "Mantenimiento", semanas: [10, 11, 12] }
+                ],
+                16: [
+                    { nombre: "Choque", semanas: [1, 2, 3, 4] },
+                    { nombre: "Estabilización", semanas: [5, 6, 7, 8] },
+                    { nombre: "Optimización", semanas: [9, 10, 11, 12] },
+                    { nombre: "Vida Nueva", semanas: [13, 14, 15, 16] }
+                ]
+            };
+            return structures[duration] || structures[8];
+        }
+
+        function getPhaseObjective(condition, phaseNumber) {
+            const objectives = {
+                estreñimiento: [
+                    "Reactivación inmediata de motilidad intestinal mediante hidratación + MCT + infrarrojo",
+                    "Estabilización del tránsito + introducción fermentados naturales + fibra prebiótica",
+                    "Optimización microbiota + consolidación hábitos + reducción dependencias",
+                    "Mantenimiento sostenible + estilo de vida Redox + autonomía completa"
+                ],
+                sop: [
+                    "Modulación hormonal intensiva + reducción inflamación + sensibilidad insulínica",
+                    "Estabilización ciclos + regulación andrógenos + optimización metabolismo",
+                    "Consolidación equilibrio hormonal + mejora composición corporal",
+                    "Mantenimiento natural + fertilidad óptima + bienestar integral"
+                ],
+                'perdida-peso': [
+                    "Choque metabólico + activación lipolisis + cetosis nutricional",
+                    "Estabilización pérdida + mantenimiento masa muscular + metabolismo",
+                    "Optimización composición corporal + metabolismo flexible + hábitos",
+                    "Mantenimiento peso ideal + estilo vida saludable + prevención rebote"
+                ],
+                inflamacion: [
+                    "Reducción inflamación aguda + modulación inmune + eliminación triggers",
+                    "Estabilización marcadores + reparación tisular + función intestinal",
+                    "Optimización sistema inmune + regeneración completa + vitalidad",
+                    "Mantenimiento anti-inflamatorio + prevención + salud óptima"
+                ]
+            };
+            return objectives[condition] ? objectives[condition][phaseNumber - 1] : `Fase ${phaseNumber} de tratamiento integral Redox`;
+        }
+
+        function adaptProtocol(baseProtocol, data) {
             let adaptedProtocol = baseProtocol;
             
-            secondaryConditions.forEach(condition => {
+            // Agregar terapias seleccionadas
+            if (data.therapies.includes('infrarrojo')) {
+                adaptedProtocol += " • Infrarrojo diario 20-30min";
+            }
+            if (data.therapies.includes('termogenesis')) {
+                adaptedProtocol += " • Termogénesis 3x/semana";
+            }
+            if (data.therapies.includes('vagal')) {
+                adaptedProtocol += " • Estimulación vagal diaria";
+            }
+            
+            // Adaptaciones por condiciones secundarias
+            data.secondaryConditions.forEach(condition => {
                 switch(condition) {
                     case 'fatiga-cronica':
                         adaptedProtocol += " • Vitaminas B naturales • Hierro hemo";
@@ -756,24 +961,100 @@
                         adaptedProtocol += " • Adaptógenos • Técnicas respiración";
                         break;
                     case 'caida-cabello':
-                        adaptedProtocol += " • Biotina natural • Proteínas específicas";
+                        adaptedProtocol += " • Biotina natural • Zinc • Proteínas específicas";
                         break;
-                    case 'menopausia':
-                        adaptedProtocol += " • Fitoestrógenos • Calcio natural";
+                    case 'problemas-piel':
+                        adaptedProtocol += " • Omega-3 • Antioxidantes • Zinc";
                         break;
-                    case 'tiroides':
-                        adaptedProtocol += " • Yodo natural • Selenio • Zinc";
-                        break;
-                    case 'colesterol-alto':
-                        adaptedProtocol += " • Omega-3 • Fibra soluble • Esteroles";
-                        break;
-                    case 'hipertension':
-                        adaptedProtocol += " • Potasio • Magnesio • Reducir sodio";
+                    case 'problemas-digestivos':
+                        adaptedProtocol += " • Probióticos • L-Glutamina • Enzimas";
                         break;
                 }
             });
             
             return adaptedProtocol;
+        }
+
+        function generateWeekMenu(conditionData, data, phase = 1, weekNumber = 1) {
+            const days = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+            
+            return days.map((dia, dayIndex) => ({
+                dia: dia,
+                comidas: conditionData.momentos.map((momento, momentoIndex) => {
+                    let alimento = getAlimentoForMoment(conditionData, momento, dayIndex, phase, weekNumber);
+                    
+                    // Aplicar exclusiones
+                    alimento = applyExclusions(alimento, data.exclusions);
+                    
+                    // Adaptar según condiciones secundarias
+                    alimento = adaptForSecondaryConditions(alimento, data.secondaryConditions, momento);
+                    
+                    return {
+                        momento: momento,
+                        horario: conditionData.horarios[momentoIndex],
+                        alimento: alimento
+                    };
+                })
+            }));
+        }
+
+        function getAlimentoForMoment(conditionData, momento, dayIndex, phase, weekNumber) {
+            const momentoKey = momento.toLowerCase();
+            let alimentosArray = [];
+            
+            switch(momentoKey) {
+                case 'despertar':
+                    alimentosArray = conditionData.alimentos.despertar || [];
+                    break;
+                case 'desayuno':
+                    alimentosArray = conditionData.alimentos.desayunos || [];
+                    break;
+                case 'almuerzo':
+                    alimentosArray = conditionData.alimentos.almuerzos || [];
+                    break;
+                case 'comida':
+                    alimentosArray = conditionData.alimentos.comidas || [];
+                    break;
+                case 'merienda':
+                    alimentosArray = conditionData.alimentos.meriendas || [];
+                    break;
+                case 'cena':
+                    alimentosArray = conditionData.alimentos.cenas || [];
+                    break;
+                default:
+                    alimentosArray = [`${momento} específico según protocolo`];
+            }
+            
+            if (alimentosArray.length === 0) {
+                return `${momento} según protocolo Redox`;
+            }
+            
+            // Seleccionar alimento basado en día y fase para variedad
+            const index = (dayIndex + (phase - 1) * 7 + (weekNumber - 1)) % alimentosArray.length;
+            return alimentosArray[index];
+        }
+
+        function applyExclusions(alimento, exclusions) {
+            let result = alimento;
+            
+            exclusions.forEach(exclusion => {
+                switch(exclusion) {
+                    case 'sin-huevos':
+                        result = result.replace(/huevos?|tortilla|revuelto/gi, 'proteína alternativa');
+                        break;
+                    case 'sin-lacteos':
+                        result = result.replace(/mantequilla|kéfir|queso|leche/gi, 'alternativa vegetal');
+                        break;
+                    case 'sin-frutos-secos':
+                        result = result.replace(/nueces|almendras|avellanas/gi, 'semillas');
+                        break;
+                    case 'sin-gluten':
+                        result = result.replace(/avena|pan|trigo/gi, 'alternativa sin gluten');
+                        break;
+                }
+            });
+            
+            return result;
         }
 
         function adaptForSecondaryConditions(alimento, secondaryConditions, momento) {
@@ -783,7 +1064,7 @@
                 switch(condition) {
                     case 'fatiga-cronica':
                         if (momento === 'DESAYUNO') {
-                            adaptedAlimento += " + Espinacas (hierro)";
+                            adaptedAlimento += " + Espinacas (hierro natural)";
                         }
                         break;
                     case 'caida-cabello':
@@ -796,14 +1077,19 @@
                             adaptedAlimento += " + Manzanilla";
                         }
                         break;
-                    case 'menopausia':
-                        if (momento === 'ALMUERZO') {
-                            adaptedAlimento += " + Semillas lino (fitoestrógenos)";
+                    case 'problemas-piel':
+                        if (momento === 'COMIDA') {
+                            adaptedAlimento += " + Omega-3 extra";
                         }
                         break;
-                    case 'colesterol-alto':
-                        if (momento === 'COMIDA') {
-                            adaptedAlimento = adaptedAlimento.replace('Carne', 'Pescado azul');
+                    case 'ansiedad-estres':
+                        if (momento === 'MERIENDA') {
+                            adaptedAlimento += " + Magnesio natural";
+                        }
+                        break;
+                    case 'problemas-digestivos':
+                        if (momento === 'DESPERTAR') {
+                            adaptedAlimento += " + Probióticos";
                         }
                         break;
                 }
@@ -812,41 +1098,33 @@
             return adaptedAlimento;
         }
 
-        function applyExclusions(alimento, exclusions) {
-            let result = alimento;
+        function displayPlan(plan) {
+            const preview = document.getElementById('menuPreview');
+            let html = '';
             
-            exclusions.forEach(exclusion => {
-                switch(exclusion) {
-                    case 'sin-huevos':
-                        result = result.replace(/huevos?|tortilla|revuelto/gi, 'proteína alternativa');
-                        break;
-                    case 'sin-lacteos':
-                        result = result.replace(/mantequilla|kéfir|queso/gi, 'alternativa vegetal');
-                        break;
-                    case 'sin-frutos-secos':
-                        result = result.replace(/nueces|almendras/gi, 'semillas');
-                        break;
-                    case 'sin-gluten':
-                        result = result.replace(/avena|pan|trigo/gi, 'alternativa sin gluten');
-                        break;
-                }
-            });
+            if (plan.tipo === 'semanal') {
+                html = displayWeeklyPlan(plan);
+            } else {
+                html = displayEvolutionaryPlan(plan);
+            }
             
-            return result;
+            preview.innerHTML = html;
         }
 
-        function displayMenuPreview(menu) {
-            const preview = document.getElementById('menuPreview');
-            
+        function displayWeeklyPlan(plan) {
             let html = `
-                <h3>📋 Menú para: ${menu.paciente}</h3>
-                <p><strong>Condición:</strong> ${menu.condicion}</p>
-                <p><strong>Protocolo:</strong> ${menu.protocolo}</p>
+                <h3>📋 Menú Semanal Redox para: ${plan.paciente}</h3>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <p><strong>🎯 Condición:</strong> ${plan.condicion}</p>
+                    <p><strong>📋 Protocolo:</strong> ${plan.protocolo}</p>
+                    ${plan.terapias.length > 0 ? `<p><strong>⚕️ Terapias:</strong> ${plan.terapias.join(', ')}</p>` : ''}
+                    ${plan.exclusiones.length > 0 ? `<p><strong>🚫 Exclusiones:</strong> ${plan.exclusiones.join(', ')}</p>` : ''}
+                </div>
                 
                 <table class="menu-table">
                     <thead>
                         <tr>
-                            <th style="width: 120px;"></th>
+                            <th style="width: 120px;">Horario</th>
                             <th>LUNES</th>
                             <th>MARTES</th>
                             <th>MIÉRCOLES</th>
@@ -859,17 +1137,22 @@
                     <tbody>
             `;
             
-            // Crear filas por momento del día
-            const momentos = ['DESPERTAR', 'DESAYUNO', 'ALMUERZO', 'COMIDA', 'MERIENDA', 'CENA'];
-            const horarios = ['7:00', '7:30', '10:30', '13:30', '16:30', '20:00'];
+            // Obtener todos los momentos únicos
+            const momentos = [...new Set(plan.menu.flatMap(dia => dia.comidas.map(c => c.momento)))];
             
-            momentos.forEach((momento, momentoIndex) => {
+            momentos.forEach(momento => {
                 html += `<tr>`;
-                html += `<td class="meal-label">${momento}<br><small>${horarios[momentoIndex]}</small></td>`;
                 
-                menu.semana.forEach(dia => {
+                // Obtener horario del primer día que tenga este momento
+                const horario = plan.menu.find(dia => 
+                    dia.comidas.some(c => c.momento === momento)
+                )?.comidas.find(c => c.momento === momento)?.horario || '';
+                
+                html += `<td class="meal-label">${momento}<br><small style="font-weight: normal; font-size: 0.8em;">${horario}</small></td>`;
+                
+                plan.menu.forEach(dia => {
                     const comida = dia.comidas.find(c => c.momento === momento);
-                    html += `<td>${comida ? comida.alimento : ''}</td>`;
+                    html += `<td>${comida ? comida.alimento : '-'}</td>`;
                 });
                 
                 html += `</tr>`;
@@ -878,9 +1161,108 @@
             html += `
                     </tbody>
                 </table>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-top: 20px;">
+                    <h4 style="color: #2c3e50; margin-bottom: 10px;">📝 Notas Importantes</h4>
+                    <ul style="margin-left: 20px; color: #6c757d;">
+                        <li>Seguir horarios de forma estricta para optimizar ritmos circadianos</li>
+                        <li>Hidratación: mínimo 2.5-3L diarios distribuidos entre comidas</li>
+                        <li>Masticación consciente: mínimo 20-30 masticaciones por bocado</li>
+                        <li>Evaluación semanal de síntomas y ajustes según respuesta</li>
+                        ${plan.terapias.includes('infrarrojo') ? '<li>Terapia infrarroja: diaria 20-30 min, preferentemente post-comida</li>' : ''}
+                        ${plan.terapias.includes('termogenesis') ? '<li>Termogénesis: 3 sesiones semanales, progresión gradual</li>' : ''}
+                    </ul>
+                </div>
             `;
             
-            preview.innerHTML = html;
+            return html;
+        }
+
+        function displayEvolutionaryPlan(plan) {
+            let html = `
+                <h3>🔄 Plan Evolutivo Redox para: ${plan.paciente}</h3>
+                <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                    <p><strong>🎯 Condición:</strong> ${plan.condicion}</p>
+                    <p><strong>⏱️ Duración:</strong> ${plan.duracion} semanas</p>
+                    <p><strong>📋 Protocolo Base:</strong> ${plan.protocolo}</p>
+                    ${plan.terapias.length > 0 ? `<p><strong>⚕️ Terapias:</strong> ${plan.terapias.join(', ')}</p>` : ''}
+                    ${plan.exclusiones.length > 0 ? `<p><strong>🚫 Exclusiones:</strong> ${plan.exclusiones.join(', ')}</p>` : ''}
+                </div>
+            `;
+            
+            plan.fases.forEach(fase => {
+                html += `
+                    <div class="phase-card">
+                        <div class="phase-header">
+                            <div class="phase-number">${fase.numero}</div>
+                            <div class="phase-title">
+                                <h4>FASE ${fase.numero}: ${fase.nombre.toUpperCase()}</h4>
+                                <p>Semanas ${fase.semanas.join(', ')} • ${fase.objetivo}</p>
+                            </div>
+                        </div>
+                `;
+                
+                fase.menus.forEach(menuSemana => {
+                    html += `
+                        <div class="week-menu">
+                            <div class="week-title">📅 SEMANA ${menuSemana.semana}</div>
+                            <table class="menu-table" style="margin: 10px 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">Momento</th>
+                                        <th>LUN</th><th>MAR</th><th>MIÉ</th><th>JUE</th><th>VIE</th><th>SÁB</th><th>DOM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    // Obtener momentos únicos para esta semana
+                    const momentos = [...new Set(menuSemana.menu.flatMap(dia => dia.comidas.map(c => c.momento)))];
+                    
+                    momentos.forEach(momento => {
+                        html += `<tr>`;
+                        html += `<td class="meal-label" style="font-size: 0.75em; padding: 5px;">${momento}</td>`;
+                        
+                        menuSemana.menu.forEach(dia => {
+                            const comida = dia.comidas.find(c => c.momento === momento);
+                            html += `<td style="font-size: 0.75em; padding: 5px;">${comida ? comida.alimento.substring(0, 50) + '...' : '-'}</td>`;
+                        });
+                        
+                        html += `</tr>`;
+                    });
+                    
+                    html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                });
+                
+                html += `</div>`;
+            });
+            
+            html += `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 6px; margin-top: 20px;">
+                    <h4 style="color: #2c3e50; margin-bottom: 15px;">🎯 Cronograma de Objetivos</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            `;
+            
+            plan.fases.forEach(fase => {
+                html += `
+                    <div style="background: white; padding: 15px; border-radius: 6px; border-left: 4px solid #3498db;">
+                        <h5 style="color: #2c3e50; margin-bottom: 5px;">Fase ${fase.numero}: ${fase.nombre}</h5>
+                        <p style="font-size: 0.9em; color: #6c757d; margin-bottom: 5px;">Semanas ${fase.semanas.join('-')}</p>
+                        <p style="font-size: 0.85em; color: #495057;">${fase.objetivo}</p>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            return html;
         }
 
         function goBack() {
@@ -894,17 +1276,42 @@
                 return;
             }
             
-            // Por ahora mostramos un mensaje, en la próxima versión implementaremos jsPDF
-            alert('🚧 Función de descarga PDF en desarrollo!\n\nPor ahora puedes:\n1. Hacer captura de pantalla\n2. Imprimir la página (Ctrl+P)\n3. Copiar el contenido\n\n¡En la próxima versión tendrás descarga automática!');
+            // Crear contenido HTML para impresión
+            const printContent = document.getElementById('menuPreview').innerHTML;
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Plan Redox - ${menuGenerado.paciente}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; color: #2c3e50; }
+                        .menu-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                        .menu-table th, .menu-table td { border: 1px solid #ddd; padding: 8px; font-size: 0.8em; }
+                        .menu-table th { background: #f8f9fa; font-weight: bold; }
+                        .meal-label { background: #f8f9fa; font-weight: bold; }
+                        .phase-card { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+                        .week-menu { margin: 15px 0; padding: 10px; background: #f8f9fa; }
+                        h3, h4 { color: #2c3e50; }
+                        @media print { body { margin: 10px; font-size: 12px; } }
+                    </style>
+                </head>
+                <body>
+                    <h1>🌱 Plan Nutricional Redox</h1>
+                    <p><strong>Generado el:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+                    <p><strong>Dietaryplus - Filosofía Redox</strong></p>
+                    <hr>
+                    ${printContent}
+                    <hr>
+                    <p style="text-align: center; color: #6c757d; font-size: 0.9em;">
+                        © Dietaryplus - www.dietaryplus.com<br>
+                        Plan generado con Metodología Redox
+                    </p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
         }
-
-        // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // Marcar opciones por defecto
-            document.getElementById('constipation').checked = true;
-            document.getElementById('infrared').checked = true;
-            document.getElementById('vagal').checked = true;
-        });
-    </script>
-</body>
-</html>
