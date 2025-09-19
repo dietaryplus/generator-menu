@@ -722,8 +722,21 @@
             console.log('Inicialización completada');
         });
         
+        // Test básico para verificar funcionamiento
+        function testFunction() {
+            console.log('JavaScript funcionando correctamente');
+            alert('Test OK - JavaScript cargado');
+        }
+        
         // Debug para verificar que el script se carga
         console.log('Script cargado correctamente');
+        
+        // Verificar que todas las funciones están definidas
+        window.addEventListener('load', function() {
+            console.log('generateMenu definida:', typeof generateMenu);
+            console.log('goBack definida:', typeof goBack);
+            console.log('downloadPDF definida:', typeof downloadPDF);
+        });
     </script>
 </body>
 </html>
