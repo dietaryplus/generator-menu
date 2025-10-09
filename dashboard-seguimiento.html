@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Seguimiento - Sistema Redox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fa;
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border-left: 4px solid #3498db;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .patients-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #34495e;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #3498db;
+            transition: width 0.3s;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📊 Dashboard de Seguimiento</h1>
+        <p>Análisis de Efectividad del Sistema Redox</p>
+    </div>
+    
+    <div class="container">
+        <div class="filters">
+            <h3>Filtros de Análisis</h3>
+            <div class="filters-row">
+                <div>
+                    <label>Paciente:</label>
+                    <select id="filtro-paciente">
+                        <option value="">Todos los pacientes</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Período:</label>
+                    <select id="filtro-periodo">
+                        <option value="7">Últimos 7 días</option>
+                        <option value="30" selected>Últimos 30 días</option>
+                        <option value="90">Últimos 90 días</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Desde:</label>
+                    <input type="date" id="fecha-desde">
+                </div>
+                <div>
+                    <label>Hasta:</label>
+                    <input type="date" id="fecha-hasta">
+                </div>
+            </div>
+            <div style="margin-top: 15px; text-align: center;">
+                <button onclick="aplicarFiltros()" class="btn">🔍 Aplicar Filtros</button>
+            </div>
+        </div>
+        
+        <div class="stats-grid" id="statsGrid">
+            <!-- Las estadísticas se cargarán aquí -->
+        </div>
+        
+        <div class="chart-container">
+            <h3>Evolución de Métricas</h3>
+            <canvas id="evolutionChart" width="400" height="200"></canvas>
+        </div>
+        
+        <div class="patients-table">
+            <h3 style="padding: 20px; margin: 0;">Detalle por Paciente</h3>
+            <div id="tableContainer">
+                <div class="loading">
+                    <div>Cargando datos...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Tu configuración -->
+    <script src="config-supabase.js"></script>
+    
+    <script>
+        let supabase;
+        let chart;
+        let datosGlobales = [];
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initSupabase();
+            await cargarDatos();
+            setupChart();
+        });
+        
+        async function initSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                console.log('Dashboard: Supabase inicializado');
+            } catch (error) {
+                console.error('Error inicializando Supabase:', error);
+            }
+        }
+        
+        async function cargarDatos() {
+            try {
+                const { data, error } = await supabase
+                    .from('seguimiento_pacientes')
+                    .select('*')
+                    .order('fecha', { ascending: false });
+                
+                if (error) throw error;
+                
+                datosGlobales = data || [];
+                
+                await actualizarEstadisticas(datosGlobales);
+                await actualizarTablaPacientes(datosGlobales);
+                await cargarPacientesEnFiltro();
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                document.getElementById('tableContainer').innerHTML = 
+                    '<div class="no-data">Error cargando datos: ' + error.message + '</div>';
+            }
+        }
+        
+        async function cargarPacientesEnFiltro() {
+            const pacientesUnicos = [...new Set(datosGlobales.map(d => d.paciente_id))];
+            const select = document.getElementById('filtro-paciente');
+            
+            pacientesUnicos.forEach(paciente => {
+                const option = document.createElement('option');
+                option.value = paciente;
+                option.textContent = paciente;
+                select.appendChild(option);
+            });
+        }
+        
+        function actualizarEstadisticas(datos) {
+            if (datos.length === 0) {
+                document.getElementById('statsGrid').innerHTML = 
+                    '<div class="no-data">No hay datos para mostrar</div>';
+                return;
+            }
+            
+            const stats = calcularEstadisticas(datos);
+            
+            const statsHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalRegistros}</div>
+                    <div class="stat-label">Total Registros</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.promedioAdherencia}</div>
+                    <div class="stat-label">Adherencia Promedio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.promedioEnergia}</div>
+                    <div class="stat-label">Energía Promedio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.promedioDigestion}</div>
+                    <div class="stat-label">Digestión Promedio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.promedioSatisfaccion}</div>
+                    <div class="stat-label">Satisfacción Promedio</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.pacientesActivos}</div>
+                    <div class="stat-label">Pacientes Activos</div>
+                </div>
+            `;
+            
+            document.getElementById('statsGrid').innerHTML = statsHTML;
+        }
+        
+        function calcularEstadisticas(datos) {
+            if (datos.length === 0) return {};
+            
+            const totalRegistros = datos.length;
+            const pacientesUnicos = new Set(datos.map(d => d.paciente_id)).size;
+            
+            const promedios = {
+                adherencia: datos.reduce((sum, d) => sum + (d.adherencia_menu || 0), 0) / datos.length,
+                energia: datos.reduce((sum, d) => sum + (d.energia_nivel || 0), 0) / datos.length,
+                digestion: datos.reduce((sum, d) => sum + (d.digestion_calidad || 0), 0) / datos.length,
+                satisfaccion: datos.reduce((sum, d) => sum + (d.satisfaccion_recetas || 0), 0) / datos.length
+            };
+            
+            return {
+                totalRegistros,
+                pacientesActivos: pacientesUnicos,
+                promedioAdherencia: promedios.adherencia.toFixed(1),
+                promedioEnergia: promedios.energia.toFixed(1),
+                promedioDigestion: promedios.digestion.toFixed(1),
+                promedioSatisfaccion: promedios.satisfaccion.toFixed(1)
+            };
+        }
+        
+        function actualizarTablaPacientes(datos) {
+            if (datos.length === 0) {
+                document.getElementById('tableContainer').innerHTML = 
+                    '<div class="no-data">No hay datos para mostrar</div>';
+                return;
+            }
+            
+            // Agrupar por paciente
+            const pacientesData = {};
+            datos.forEach(registro => {
+                const paciente = registro.paciente_id;
+                if (!pacientesData[paciente]) {
+                    pacientesData[paciente] = {
+                        registros: [],
+                        ultimoRegistro: null
+                    };
+                }
+                pacientesData[paciente].registros.push(registro);
+                
+                // Mantener el registro más reciente
+                if (!pacientesData[paciente].ultimoRegistro || 
+                    new Date(registro.fecha) > new Date(pacientesData[paciente].ultimoRegistro.fecha)) {
+                    pacientesData[paciente].ultimoRegistro = registro;
+                }
+            });
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Paciente</th>
+                            <th>Registros</th>
+                            <th>Último Registro</th>
+                            <th>Adherencia</th>
+                            <th>Energía</th>
+                            <th>Digestión</th>
+                            <th>Satisfacción</th>
+                            <th>Síntomas Recientes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            Object.entries(pacientesData).forEach(([paciente, data]) => {
+                const ultimo = data.ultimoRegistro;
+                const totalRegistros = data.registros.length;
+                
+                // Calcular promedios del paciente
+                const promedios = {
+                    adherencia: data.registros.reduce((sum, r) => sum + (r.adherencia_menu || 0), 0) / totalRegistros,
+                    energia: data.registros.reduce((sum, r) => sum + (r.energia_nivel || 0), 0) / totalRegistros,
+                    digestion: data.registros.reduce((sum, r) => sum + (r.digestion_calidad || 0), 0) / totalRegistros,
+                    satisfaccion: data.registros.reduce((sum, r) => sum + (r.satisfaccion_recetas || 0), 0) / totalRegistros
+                };
+                
+                const sintomas = ultimo.sintomas_principales ? ultimo.sintomas_principales.join(', ') : 'Ninguno';
+                
+                tableHTML += `
+                    <tr>
+                        <td><strong>${paciente}</strong></td>
+                        <td>${totalRegistros}</td>
+                        <td>${new Date(ultimo.fecha).toLocaleDateString('es-ES')}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${promedios.adherencia * 10}%"></div>
+                            </div>
+                            ${promedios.adherencia.toFixed(1)}/10
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${promedios.energia * 10}%"></div>
+                            </div>
+                            ${promedios.energia.toFixed(1)}/10
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${promedios.digestion * 10}%"></div>
+                            </div>
+                            ${promedios.digestion.toFixed(1)}/10
+                        </td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${promedios.satisfaccion * 10}%"></div>
+                            </div>
+                            ${promedios.satisfaccion.toFixed(1)}/10
+                        </td>
+                        <td>${sintomas}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            document.getElementById('tableContainer').innerHTML = tableHTML;
+        }
+        
+        function setupChart() {
+            const ctx = document.getElementById('evolutionChart').getContext('2d');
+            
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Adherencia Promedio',
+                            data: [],
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Energía Promedio',
+                            data: [],
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Digestión Promedio',
+                            data: [],
+                            borderColor: '#27ae60',
+                            backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Satisfacción Promedio',
+                            data: [],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Evolución de Métricas en el Tiempo'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 10,
+                            title: {
+                                display: true,
+                                text: 'Puntuación (1-10)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fecha'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            actualizarGrafico(datosGlobales);
+        }
+        
+        function actualizarGrafico(datos) {
+            if (!chart || datos.length === 0) return;
+            
+            // Agrupar datos por fecha
+            const datosPorFecha = {};
+            
+            datos.forEach(registro => {
+                const fecha = registro.fecha;
+                if (!datosPorFecha[fecha]) {
+                    datosPorFecha[fecha] = {
+                        adherencia: [],
+                        energia: [],
+                        digestion: [],
+                        satisfaccion: []
+                    };
+                }
+                
+                datosPorFecha[fecha].adherencia.push(registro.adherencia_menu || 0);
+                datosPorFecha[fecha].energia.push(registro.energia_nivel || 0);
+                datosPorFecha[fecha].digestion.push(registro.digestion_calidad || 0);
+                datosPorFecha[fecha].satisfaccion.push(registro.satisfaccion_recetas || 0);
+            });
+            
+            // Calcular promedios por fecha y ordenar
+            const fechasOrdenadas = Object.keys(datosPorFecha).sort();
+            const labels = fechasOrdenadas.map(fecha => new Date(fecha).toLocaleDateString('es-ES'));
+            
+            const adherenciaData = fechasOrdenadas.map(fecha => {
+                const valores = datosPorFecha[fecha].adherencia;
+                return valores.reduce((sum, val) => sum + val, 0) / valores.length;
+            });
+            
+            const energiaData = fechasOrdenadas.map(fecha => {
+                const valores = datosPorFecha[fecha].energia;
+                return valores.reduce((sum, val) => sum + val, 0) / valores.length;
+            });
+            
+            const digestionData = fechasOrdenadas.map(fecha => {
+                const valores = datosPorFecha[fecha].digestion;
+                return valores.reduce((sum, val) => sum + val, 0) / valores.length;
+            });
+            
+            const satisfaccionData = fechasOrdenadas.map(fecha => {
+                const valores = datosPorFecha[fecha].satisfaccion;
+                return valores.reduce((sum, val) => sum + val, 0) / valores.length;
+            });
+            
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = adherenciaData;
+            chart.data.datasets[1].data = energiaData;
+            chart.data.datasets[2].data = digestionData;
+            chart.data.datasets[3].data = satisfaccionData;
+            
+            chart.update();
+        }
+        
+        async function aplicarFiltros() {
+            let datosFiltrados = [...datosGlobales];
+            
+            const pacienteFiltro = document.getElementById('filtro-paciente').value;
+            const periodoFiltro = document.getElementById('filtro-periodo').value;
+            const fechaDesde = document.getElementById('fecha-desde').value;
+            const fechaHasta = document.getElementById('fecha-hasta').value;
+            
+            // Filtrar por paciente
+            if (pacienteFiltro) {
+                datosFiltrados = datosFiltrados.filter(d => d.paciente_id === pacienteFiltro);
+            }
+            
+            // Filtrar por período o fechas específicas
+            if (fechaDesde && fechaHasta) {
+                datosFiltrados = datosFiltrados.filter(d => {
+                    const fecha = new Date(d.fecha);
+                    return fecha >= new Date(fechaDesde) && fecha <= new Date(fechaHasta);
+                });
+            } else if (periodoFiltro) {
+                const dias = parseInt(periodoFiltro);
+                const fechaLimite = new Date();
+                fechaLimite.setDate(fechaLimite.getDate() - dias);
+                
+                datosFiltrados = datosFiltrados.filter(d => {
+                    return new Date(d.fecha) >= fechaLimite;
+                });
+            }
+            
+            // Actualizar visualizaciones
+            await actualizarEstadisticas(datosFiltrados);
+            await actualizarTablaPacientes(datosFiltrados);
+            actualizarGrafico(datosFiltrados);
+        }
+        
+        // Estilos adicionales para botón
+        const style = document.createElement('style');
+        style.textContent = `
+            .btn {
+                background: #3498db;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 1em;
+                transition: all 0.3s;
+            }
+            
+            .btn:hover {
+                background: #2980b9;
+                transform: translateY(-1px);
+            }
+            
+            input, select {
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                width: 100%;
+            }
+            
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

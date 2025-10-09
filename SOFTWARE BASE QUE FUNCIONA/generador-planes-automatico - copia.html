@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Automático de Planes - Sistema Redox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: 300;
+        }
+        
+        .wizard-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .wizard-steps {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .step {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            border-right: 1px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .step:last-child {
+            border-right: none;
+        }
+        
+        .step.active {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .step.completed {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .step-number {
+            background: rgba(0,0,0,0.1);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: bold;
+        }
+        
+        .step.active .step-number,
+        .step.completed .step-number {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .step-content {
+            padding: 40px;
+            min-height: 600px;
+            display: none;
+        }
+        
+        .step-content.active {
+            display: block;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .duration-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .duration-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px solid #dee2e6;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .duration-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .duration-card.selected {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        }
+        
+        .duration-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 10px;
+        }
+        
+        .duration-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .duration-description {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .condition-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .condition-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .condition-card:hover {
+            border-color: #3498db;
+            transform: translateY(-2px);
+        }
+        
+        .condition-card.selected {
+            border-color: #3498db;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+        }
+        
+        .condition-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .condition-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .condition-description {
+            color: #666;
+            line-height: 1.5;
+        }
+        
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+            accent-color: #3498db;
+        }
+        
+        .plan-preview {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        .phase-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .phase-timeline::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #dee2e6;
+            z-index: 1;
+        }
+        
+        .phase-item {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .phase-item.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .wizard-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .generated-plan {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .week-summary {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Generador Automático de Planes</h1>
+            <p>Crea tratamientos estratégicos de 4, 8 o 16 semanas en minutos</p>
+        </div>
+        
+        <div class="wizard-container">
+            <!-- Steps Header -->
+            <div class="wizard-steps">
+                <div class="step active" data-step="1">
+                    <div class="step-number">1</div>
+                    <div>Paciente</div>
+                </div>
+                <div class="step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div>Duración</div>
+                </div>
+                <div class="step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div>Condiciones</div>
+                </div>
+                <div class="step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div>Configuración</div>
+                </div>
+                <div class="step" data-step="5">
+                    <div class="step-number">5</div>
+                    <div>Generar</div>
+                </div>
+            </div>
+            
+            <!-- STEP 1: Selección de Paciente -->
+            <div class="step-content active" data-step="1">
+                <div class="form-section">
+                    <h3>Seleccionar Paciente</h3>
+                    <div class="form-group">
+                        <label for="pacienteSelect">Paciente registrado:</label>
+                        <select id="pacienteSelect">
+                            <option value="">Cargando pacientes...</option>
+                        </select>
+                    </div>
+                    
+                    <div id="pacienteInfo" style="display: none;">
+                        <div class="generated-plan">
+                            <h4>Información del Paciente</h4>
+                            <div id="pacienteDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 2: Duración del Plan -->
+            <div class="step-content" data-step="2">
+                <div class="form-section">
+                    <h3>Duración del Tratamiento</h3>
+                    <p>Selecciona la duración total del plan nutricional:</p>
+                    
+                    <div class="duration-cards">
+                        <div class="duration-card" data-duration="4">
+                            <div class="duration-number">4</div>
+                            <div class="duration-title">Plan Intensivo</div>
+                            <div class="duration-description">Resultados rápidos, máxima intensidad</div>
+                        </div>
+                        
+                        <div class="duration-card" data-duration="8">
+                            <div class="duration-number">8</div>
+                            <div class="duration-title">Plan Estándar</div>
+                            <div class="duration-description">Equilibrio ideal, sostenible</div>
+                        </div>
+                        
+                        <div class="duration-card" data-duration="16">
+                            <div class="duration-number">16</div>
+                            <div class="duration-title">Plan Completo</div>
+                            <div class="duration-description">Transformación profunda, 4 fases</div>
+                        </div>
+                    </div>
+                    
+                    <div id="durationPreview" style="display: none;">
+                        <div class="plan-preview">
+                            <h4>Vista Previa de Fases:</h4>
+                            <div class="phase-timeline" id="phaseTimeline"></div>
+                            <div id="phaseDetails"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 3: Condiciones -->
+            <div class="step-content" data-step="3">
+                <div class="form-section">
+                    <h3>Condición Principal</h3>
+                    <p>Selecciona la condición principal a tratar:</p>
+                    
+                    <div class="condition-grid">
+                        <div class="condition-card" data-condition="estreñimiento">
+                            <div class="condition-icon">💧</div>
+                            <div class="condition-name">Estreñimiento Severo</div>
+                            <div class="condition-description">Protocolo laxante natural, hidratación intensiva, reparación intestinal progresiva</div>
+                        </div>
+                        
+                        <div class="condition-card" data-condition="sop">
+                            <div class="condition-icon">⚖️</div>
+                            <div class="condition-name">SOP</div>
+                            <div class="condition-description">Regulación hormonal, antiandrogénicos naturales, control insulínico</div>
+                        </div>
+                        
+                        <div class="condition-card" data-condition="perdida-peso">
+                            <div class="condition-icon">📉</div>
+                            <div class="condition-name">Pérdida de Peso</div>
+                            <div class="condition-description">Termogénesis natural, control apetito, composición corporal</div>
+                        </div>
+                        
+                        <div class="condition-card" data-condition="inflamacion">
+                            <div class="condition-icon">🔥</div>
+                            <div class="condition-name">Inflamación Sistémica</div>
+                            <div class="condition-description">Antiinflamatorios naturales, antioxidantes, reparación celular</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <h3>Condiciones Secundarias</h3>
+                    <p>Marca todas las condiciones adicionales que quieras abordar:</p>
+                    
+                    <div class="checkbox-grid">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-digestivo" value="problemas-digestivos">
+                            <label for="sec-digestivo">Problemas Digestivos</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-fatiga" value="fatiga-cronica">
+                            <label for="sec-fatiga">Fatiga Crónica</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-sueño" value="problemas-sueño">
+                            <label for="sec-sueño">Problemas de Sueño</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-ansiedad" value="ansiedad-estres">
+                            <label for="sec-ansiedad">Ansiedad/Estrés</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-piel" value="problemas-piel">
+                            <label for="sec-piel">Problemas de Piel</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="sec-cabello" value="caida-cabello">
+                            <label for="sec-cabello">Caída del Cabello</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 4: Configuración -->
+            <div class="step-content" data-step="4">
+                <div class="form-section">
+                    <h3>Configuración del Plan</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="nombrePlan">Nombre del Plan:</label>
+                            <input type="text" id="nombrePlan" placeholder="Plan personalizado para [nombre]">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="intensidadPlan">Intensidad:</label>
+                            <select id="intensidadPlan">
+                                <option value="suave">Suave - Cambios graduales</option>
+                                <option value="moderada" selected>Moderada - Equilibrada</option>
+                                <option value="intensiva">Intensiva - Cambios rápidos</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="enfoqueEspecial">Enfoque Especial:</label>
+                            <select id="enfoqueEspecial">
+                                <option value="">Estándar</option>
+                                <option value="deportista">Deportista/Activo</option>
+                                <option value="sedentario">Sedentario</option>
+                                <option value="edad-avanzada">Edad Avanzada</option>
+                                <option value="embarazo">Embarazo/Lactancia</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <h3>Exclusiones Alimentarias</h3>
+                        <div class="checkbox-grid">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-gluten" value="sin-gluten">
+                                <label for="excl-gluten">Sin Gluten</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-lacteos" value="sin-lacteos">
+                                <label for="excl-lacteos">Sin Lácteos</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-huevos" value="sin-huevos">
+                                <label for="excl-huevos">Sin Huevos</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-frutos-secos" value="sin-frutos-secos">
+                                <label for="excl-frutos-secos">Sin Frutos Secos</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-pescado" value="sin-pescado">
+                                <label for="excl-pescado">Sin Pescado</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="excl-carne" value="sin-carne">
+                                <label for="excl-carne">Sin Carne</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notasEspeciales">Notas Especiales:</label>
+                        <textarea id="notasEspeciales" rows="4" placeholder="Cualquier consideración adicional, preferencias específicas, etc."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- STEP 5: Generar -->
+            <div class="step-content" data-step="5">
+                <div id="generationStep">
+                    <div class="form-section">
+                        <h3>Resumen del Plan</h3>
+                        <div id="planSummary" class="generated-plan">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                        
+                        <div style="text-align: center; margin: 30px 0;">
+                            <button class="btn btn-success" onclick="generarPlanAutomatico()" id="generateBtn">
+                                🚀 Generar Plan Automático
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="loadingStep" class="loading" style="display: none;">
+                    <div class="spinner"></div>
+                    <h3>Generando tu plan estratégico...</h3>
+                    <p>Creando <span id="loadingWeeks">X</span> semanas personalizadas...</p>
+                </div>
+                
+                <div id="successStep" style="display: none;">
+                    <div class="success-message">
+                        <h3>Plan generado exitosamente!</h3>
+                        <p>Tu plan estratégico ha sido creado y guardado en la base de datos</p>
+                    </div>
+                    
+                    <div id="generatedPlanPreview" class="generated-plan">
+                        <!-- Vista previa del plan generado -->
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <button class="btn" onclick="abrirEditor()">
+                            📝 Abrir Editor de Plan
+                        </button>
+                        <button class="btn btn-secondary" onclick="descargarPlanPDF()">
+                            📄 Descargar PDF
+                        </button>
+                        <button class="btn btn-success" onclick="activarPlan()">
+                            ✅ Activar Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wizard Actions -->
+            <div class="wizard-actions">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousStep()" disabled>
+                    Anterior
+                </button>
+                <button class="btn" id="nextBtn" onclick="nextStep()">
+                    Siguiente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config-supabase.js"></script>
+    
+    <script>
+        let supabase;
+        let currentStep = 1;
+        let wizardData = {
+            paciente: null,
+            duracion: null,
+            condicion_principal: null,
+            condiciones_secundarias: [],
+            configuracion: {},
+            planGenerado: null
+        };
+        
+        let pacientesData = [];
+        let plantillasFases = [];
+        let reglasProgresion = [];
+        let recetasDisponibles = [];
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initSupabase();
+            await cargarDatos();
+            setupEventListeners();
+        });
+        
+        async function initSupabase() {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                console.log('Generador Automático: Supabase inicializado');
+            } catch (error) {
+                console.error('Error inicializando Supabase:', error);
+                alert('Error de conexión: ' + error.message);
+            }
+        }
+        
+        async function cargarDatos() {
+            try {
+                // Cargar pacientes
+                const { data: pacientes, error: errorPacientes } = await supabase
+    .from('pacientes')
+    .select('paciente_id, nombre_completo, condicion_principal, estado')
+    .in('estado', ['activo', 'pausado'])
+    .order('nombre_completo');
+                    
+                if (errorPacientes) throw errorPacientes;
+                pacientesData = pacientes || [];
+                
+                // Cargar plantillas de fases
+                const { data: plantillas, error: errorPlantillas } = await supabase
+                    .from('plantillas_fases')
+                    .select('*')
+                    .order('condicion, numero_fase');
+                    
+                if (errorPlantillas) console.log('No hay plantillas de fases');
+                plantillasFases = plantillas || [];
+                
+                // Cargar reglas de progresión
+                const { data: reglas, error: errorReglas } = await supabase
+                    .from('reglas_progresion')
+                    .select('*')
+                    .order('condicion, semana_inicio');
+                    
+                if (errorReglas) console.log('No hay reglas de progresión');
+                reglasProgresion = reglas || [];
+                
+                // Cargar recetas
+                const { data: recetas, error: errorRecetas } = await supabase
+                    .from('recetas_redox')
+                    .select('*');
+                    
+                if (errorRecetas) console.log('Error cargando recetas');
+                recetasDisponibles = recetas || [];
+                
+                poblarSelectPacientes();
+                
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+            }
+        }
+        
+        function poblarSelectPacientes() {
+    const select = document.getElementById('pacienteSelect');
+    select.innerHTML = '<option value="">Seleccionar paciente...</option>';
+    
+    pacientesData.forEach(paciente => {
+        const option = document.createElement('option');
+        option.value = paciente.paciente_id;  // Usar el paciente_id de la BD
+        option.textContent = `${paciente.nombre_completo} (${paciente.paciente_id})`;
+        select.appendChild(option);
+    });
+}
+        
+        function setupEventListeners() {
+            // Selección de paciente
+            document.getElementById('pacienteSelect').addEventListener('change', function() {
+                const pacienteId = this.value;
+                if (pacienteId) {
+                    const paciente = pacientesData.find(p => p.paciente_id === pacienteId);
+                    if (paciente) {
+                        wizardData.paciente = paciente;
+                        mostrarInfoPaciente(paciente);
+                        
+                        // Auto-llenar nombre del plan
+                        document.getElementById('nombrePlan').value = `Plan personalizado para ${paciente.nombre_completo}`;
+                    }
+                }
+            });
+            
+            // Selección de duración
+            document.querySelectorAll('.duration-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.duration-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const duracion = parseInt(this.dataset.duration);
+                    wizardData.duracion = duracion;
+                    mostrarPreviewDuracion(duracion);
+                });
+            });
+            
+            // Selección de condición principal
+            document.querySelectorAll('.condition-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.condition-card').forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    wizardData.condicion_principal = this.dataset.condition;
+                });
+            });
+            
+            // Condiciones secundarias
+            document.querySelectorAll('.checkbox-item input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (!wizardData.condiciones_secundarias.includes(this.value)) {
+                            wizardData.condiciones_secundarias.push(this.value);
+                        }
+                    } else {
+                        wizardData.condiciones_secundarias = wizardData.condiciones_secundarias.filter(c => c !== this.value);
+                    }
+                });
+            });
+        }
+        
+        function mostrarInfoPaciente(paciente) {
+            const info = document.getElementById('pacienteInfo');
+            const details = document.getElementById('pacienteDetails');
+            
+            details.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div><strong>Nombre:</strong> ${paciente.nombre_completo}</div>
+                    <div><strong>ID:</strong> ${paciente.paciente_id}</div>
+                    <div><strong>Condición:</strong> ${paciente.condicion_principal || 'No especificada'}</div>
+                    <div><strong>Estado:</strong> ${paciente.estado}</div>
+                    <div><strong>Peso:</strong> ${paciente.peso_inicial || 'No registrado'} kg</div>
+                    <div><strong>Altura:</strong> ${paciente.altura_cm || 'No registrada'} cm</div>
+                </div>
+                ${paciente.alergias && paciente.alergias.length > 0 ? `
+                    <div style="margin-top: 15px;">
+                        <strong>Alergias:</strong> ${paciente.alergias.join(', ')}
+                    </div>
+                ` : ''}
+                ${paciente.objetivo_tratamiento ? `
+                    <div style="margin-top: 15px;">
+                        <strong>Objetivo:</strong> ${paciente.objetivo_tratamiento}
+                    </div>
+                ` : ''}
+            `;
+            
+            info.style.display = 'block';
+        }
+        
+        function mostrarPreviewDuracion(duracion) {
+            const preview = document.getElementById('durationPreview');
+            const timeline = document.getElementById('phaseTimeline');
+            const details = document.getElementById('phaseDetails');
+            
+            let fases = [];
+            if (duracion === 4) {
+                fases = [1, 2];
+            } else if (duracion === 8) {
+                fases = [1, 2, 3, 4];
+            } else if (duracion === 16) {
+                fases = [1, 2, 3, 4];
+            }
+            
+            timeline.innerHTML = '';
+            fases.forEach((fase, index) => {
+                const phaseItem = document.createElement('div');
+                phaseItem.className = 'phase-item';
+                phaseItem.textContent = fase;
+                timeline.appendChild(phaseItem);
+            });
+            
+            details.innerHTML = `
+                <div style="margin-top: 20px;">
+                    <h5>Estructura del Plan:</h5>
+                    <ul style="margin-left: 20px;">
+                        ${duracion === 4 ? `
+                            <li><strong>Semanas 1-2:</strong> Fase inicial intensiva</li>
+                            <li><strong>Semanas 3-4:</strong> Consolidación y optimización</li>
+                        ` : duracion === 8 ? `
+                            <li><strong>Semanas 1-2:</strong> Fundación y adaptación</li>
+                            <li><strong>Semanas 3-4:</strong> Intensificación</li>
+                            <li><strong>Semanas 5-6:</strong> Optimización</li>
+                            <li><strong>Semanas 7-8:</strong> Mantenimiento</li>
+                        ` : `
+                            <li><strong>Semanas 1-4:</strong> Fase 1 - Fundación</li>
+                            <li><strong>Semanas 5-8:</strong> Fase 2 - Desarrollo</li>
+                            <li><strong>Semanas 9-12:</strong> Fase 3 - Intensificación</li>
+                            <li><strong>Semanas 13-16:</strong> Fase 4 - Consolidación</li>
+                        `}
+                    </ul>
+                </div>
+            `;
+            
+            preview.style.display = 'block';
+            document.getElementById('loadingWeeks').textContent = duracion;
+        }
+        
+        function nextStep() {
+            if (!validarStep(currentStep)) return;
+            
+            if (currentStep === 4) {
+                // Recopilar configuración antes del último paso
+                recopilarConfiguracion();
+                mostrarResumenPlan();
+            }
+            
+            if (currentStep < 5) {
+                currentStep++;
+                updateStepDisplay();
+            }
+        }
+        
+        function previousStep() {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        }
+        
+        function validarStep(step) {
+            switch(step) {
+                case 1:
+                    if (!wizardData.paciente) {
+                        alert('Por favor selecciona un paciente');
+                        return false;
+                    }
+                    return true;
+                    
+                case 2:
+                    if (!wizardData.duracion) {
+                        alert('Por favor selecciona la duración del plan');
+                        return false;
+                    }
+                    return true;
+                    
+                case 3:
+                    if (!wizardData.condicion_principal) {
+                        alert('Por favor selecciona la condición principal');
+                        return false;
+                    }
+                    return true;
+                    
+                case 4:
+                    return true;
+                    
+                default:
+                    return true;
+            }
+        }
+        
+        function updateStepDisplay() {
+            // Actualizar header steps
+            document.querySelectorAll('.step').forEach(step => {
+                const stepNum = parseInt(step.dataset.step);
+                step.classList.remove('active', 'completed');
+                
+                if (stepNum === currentStep) {
+                    step.classList.add('active');
+                } else if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                }
+            });
+            
+            // Actualizar contenido
+            document.querySelectorAll('.step-content').forEach(content => {
+                content.classList.remove('active');
+                if (parseInt(content.dataset.step) === currentStep) {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Actualizar botones
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+            document.getElementById('nextBtn').style.display = currentStep === 5 ? 'none' : 'block';
+        }
+        
+        function recopilarConfiguracion() {
+            wizardData.configuracion = {
+                nombre_plan: document.getElementById('nombrePlan').value,
+                intensidad: document.getElementById('intensidadPlan').value,
+                enfoque_especial: document.getElementById('enfoqueEspecial').value,
+                exclusiones: Array.from(document.querySelectorAll('#step-4 input[type="checkbox"]:checked')).map(cb => cb.value),
+                notas_especiales: document.getElementById('notasEspeciales').value
+            };
+        }
+        
+        function mostrarResumenPlan() {
+            const summary = document.getElementById('planSummary');
+            
+            summary.innerHTML = `
+                <h4>Resumen del Plan a Generar</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div>
+                        <strong>Paciente:</strong><br>
+                        ${wizardData.paciente.nombre_completo}<br>
+                        <small>${wizardData.paciente.paciente_id}</small>
+                    </div>
+                    <div>
+                        <strong>Duración:</strong><br>
+                        ${wizardData.duracion} semanas<br>
+                        <small>${wizardData.duracion === 4 ? 'Plan Intensivo' : wizardData.duracion === 8 ? 'Plan Estándar' : 'Plan Completo'}</small>
+                    </div>
+                    <div>
+                        <strong>Condición Principal:</strong><br>
+                        ${wizardData.condicion_principal}<br>
+                        <small>Intensidad: ${wizardData.configuracion.intensidad}</small>
+                    </div>
+                    <div>
+                        <strong>Condiciones Secundarias:</strong><br>
+                        ${wizardData.condiciones_secundarias.length > 0 ? wizardData.condiciones_secundarias.join(', ') : 'Ninguna'}<br>
+                        <small>${wizardData.condiciones_secundarias.length} condiciones adicionales</small>
+                    </div>
+                </div>
+                
+                ${wizardData.configuracion.exclusiones.length > 0 ? `
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Exclusiones:</strong> ${wizardData.configuracion.exclusiones.join(', ')}
+                    </div>
+                ` : ''}
+                
+                ${wizardData.configuracion.notas_especiales ? `
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                        <strong>Notas Especiales:</strong><br>
+                        ${wizardData.configuracion.notas_especiales}
+                    </div>
+                ` : ''}
+                
+                <div style="text-align: center; margin: 20px 0; color: #666;">
+                    Se generarán <strong>${wizardData.duracion} semanas</strong> con aproximadamente <strong>${wizardData.duracion * 21}</strong> comidas personalizadas
+                </div>
+            `;
+        }
+        
+        async function generarPlanAutomatico() {
+            document.getElementById('generationStep').style.display = 'none';
+            document.getElementById('loadingStep').style.display = 'block';
+            
+            try {
+                // 1. Crear el plan principal
+                const planData = {
+                    paciente_id: wizardData.paciente.paciente_id,
+                    nombre_plan: wizardData.configuracion.nombre_plan,
+                    duracion_total: wizardData.duracion,
+                    condicion_principal: wizardData.condicion_principal,
+                    condiciones_secundarias: wizardData.condiciones_secundarias,
+                    estado: 'borrador',
+                    notas_nutricionista: wizardData.configuracion.notas_especiales
+                };
+                
+                const { data: planCreado, error: errorPlan } = await supabase
+                    .from('planes_generados')
+                    .insert([planData])
+                    .select()
+                    .single();
+                
+                if (errorPlan) throw errorPlan;
+                
+                // 2. Generar las semanas
+                await generarSemanas(planCreado);
+                
+                wizardData.planGenerado = planCreado;
+                mostrarPlanGenerado();
+                
+            } catch (error) {
+                console.error('Error generando plan:', error);
+                alert('Error generando el plan: ' + error.message);
+                
+                document.getElementById('loadingStep').style.display = 'none';
+                document.getElementById('generationStep').style.display = 'block';
+            }
+        }
+        
+        async function generarSemanas(plan) {
+            const semanas = [];
+            const comidas = [];
+            
+            for (let semana = 1; semana <= wizardData.duracion; semana++) {
+                // Determinar fase actual
+                const fase = determinarFase(semana, wizardData.duracion);
+                const plantillaFase = plantillasFases.find(p => 
+                    p.condicion === wizardData.condicion_principal && p.numero_fase === fase
+                );
+                
+                // Crear la semana
+                const semanaData = {
+                    plan_id: plan.id,
+                    numero_semana: semana,
+                    nombre_fase: plantillaFase ? plantillaFase.nombre_fase : `Semana ${semana}`,
+                    objetivos_semana: plantillaFase ? plantillaFase.objetivos : [`Objetivos semana ${semana}`],
+                    enfoque_semanal: plantillaFase ? plantillaFase.enfoque_nutricional : `Enfoque de la semana ${semana}`,
+                    notas_semana: ''
+                };
+                
+                semanas.push(semanaData);
+            }
+            
+            // Insertar semanas
+            const { data: semanasCreadas, error: errorSemanas } = await supabase
+                .from('semanas_plan')
+                .insert(semanas)
+                .select();
+            
+            if (errorSemanas) throw errorSemanas;
+            
+            // Generar comidas para cada semana
+            for (const semana of semanasCreadas) {
+                await generarComidasSemana(semana);
+            }
+        }
+        
+        function determinarFase(numeroSemana, duracionTotal) {
+            if (duracionTotal === 4) {
+                return numeroSemana <= 2 ? 1 : 2;
+            } else if (duracionTotal === 8) {
+                if (numeroSemana <= 2) return 1;
+                if (numeroSemana <= 4) return 2;
+                if (numeroSemana <= 6) return 3;
+                return 4;
+            } else if (duracionTotal === 16) {
+                if (numeroSemana <= 4) return 1;
+                if (numeroSemana <= 8) return 2;
+                if (numeroSemana <= 12) return 3;
+                return 4;
+            }
+            return 1;
+        }
+        
+        async function generarComidasSemana(semana) {
+            const momentos = ['desayuno', 'almuerzo', 'comida', 'merienda', 'cena'];
+            const dias = 7;
+            const comidas = [];
+            
+            for (let dia = 1; dia <= dias; dia++) {
+                for (const momento of momentos) {
+                    // Seleccionar receta apropiada
+                    const receta = seleccionarRecetaInteligente(momento, wizardData.condicion_principal, semana.numero_semana, dia);
+                    
+                    const comidaData = {
+                        semana_id: semana.id,
+                        dia_semana: dia,
+                        momento_comida: momento,
+                        receta_id: receta ? receta.id : null,
+                        descripcion_personalizada: receta ? receta.nombre : `${momento} semana ${semana.numero_semana}`,
+                        notas_comida: '',
+                        is_custom: false
+                    };
+                    
+                    comidas.push(comidaData);
+                }
+            }
+            
+            const { error } = await supabase
+                .from('comidas_plan')
+                .insert(comidas);
+            
+            if (error) throw error;
+        }
+        
+        function seleccionarRecetaInteligente(momento, condicion, numeroSemana, dia) {
+            // Filtrar recetas por momento y condición
+            let recetasFiltradas = recetasDisponibles.filter(r => {
+                const categoriaCorrecta = r.categoria === momento;
+                const condicionAplicable = !r.condiciones_aplicables || 
+                                         r.condiciones_aplicables.includes(condicion) ||
+                                         r.condiciones_aplicables.length === 0;
+                return categoriaCorrecta && condicionAplicable;
+            });
+            
+            // Si no hay recetas específicas, usar genéricas
+            if (recetasFiltradas.length === 0) {
+                recetasFiltradas = recetasDisponibles.filter(r => r.categoria === momento);
+            }
+            
+            if (recetasFiltradas.length === 0) return null;
+            
+            // Aplicar rotación inteligente
+            const indice = (numeroSemana * 7 + dia) % recetasFiltradas.length;
+            return recetasFiltradas[indice];
+        }
+        
+        function mostrarPlanGenerado() {
+            document.getElementById('loadingStep').style.display = 'none';
+            document.getElementById('successStep').style.display = 'block';
+            
+            const preview = document.getElementById('generatedPlanPreview');
+            preview.innerHTML = `
+                <h4>Plan Generado: ${wizardData.planGenerado.nombre_plan}</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div class="week-summary">
+                        <strong>Duración Total</strong><br>
+                        ${wizardData.duracion} semanas
+                    </div>
+                    <div class="week-summary">
+                        <strong>Comidas Generadas</strong><br>
+                        ${wizardData.duracion * 35} comidas
+                    </div>
+                    <div class="week-summary">
+                        <strong>Estado</strong><br>
+                        Borrador (editable)
+                    </div>
+                    <div class="week-summary">
+                        <strong>ID del Plan</strong><br>
+                        #${wizardData.planGenerado.id}
+                    </div>
+                </div>
+                
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                    <h5>¡Plan creado exitosamente!</h5>
+                    <p>El plan ha sido generado automáticamente basándose en tu configuración.<br>
+                    Ahora puedes editarlo, activarlo para el paciente o descargarlo como PDF.</p>
+                </div>
+            `;
+        }
+        
+        function abrirEditor() {
+            // Abrir el editor en nueva ventana con el ID del plan
+            window.open(`editor-planes.html?plan=${wizardData.planGenerado.id}`, '_blank');
+        }
+        
+        function descargarPlanPDF() {
+            alert('Funcionalidad de descarga PDF en desarrollo');
+        }
+        
+        async function activarPlan() {
+            if (confirm('¿Activar este plan para el paciente? Una vez activado, el paciente podrá verlo y seguirlo.')) {
+                try {
+                    const { error } = await supabase
+                        .from('planes_generados')
+                        .update({ estado: 'activo' })
+                        .eq('id', wizardData.planGenerado.id);
+                    
+                    if (error) throw error;
+                    
+                    alert('Plan activado exitosamente');
+                    
+                } catch (error) {
+                    console.error('Error activando plan:', error);
+                    alert('Error activando el plan: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

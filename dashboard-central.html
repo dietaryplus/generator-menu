@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Redox Professional - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-black: #1a1a1a;
+            --secondary-black: #2d2d2d;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666666;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --white: #ffffff;
+            --border-light: #e8e8e8;
+            --success-green: #27ae60;
+            --error-red: #e74c3c;
+            --warning-orange: #f39c12;
+            --info-blue: #3498db;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light-gray);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-black);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 32px;
+            width: 24px;
+            height: 24px;
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            font-size: 12px;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--light-gray);
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background: var(--light-gray);
+            color: var(--text-primary);
+        }
+        
+        .nav-item.active {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .nav-text {
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar.collapsed .nav-icon {
+            margin-right: 0;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .main-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--white);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--light-gray);
+        }
+        
+        .btn-primary {
+            background: var(--primary-black);
+            color: var(--white);
+            border-color: var(--primary-black);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-black);
+        }
+        
+        .btn-success {
+            background: var(--success-green);
+            color: var(--white);
+            border-color: var(--success-green);
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+        
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 24px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .stat-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-change {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-change.positive {
+            color: var(--success-green);
+        }
+        
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .action-card {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .action-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--light-gray);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 12px;
+        }
+        
+        .action-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .action-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* TABLE CONTAINER */
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+        
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .table td {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .table tbody tr:hover {
+            background: var(--light-gray);
+        }
+        
+        /* LOADING */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-top: 2px solid var(--primary-black);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* SECTION VISIBILITY */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* NOTIFICATIONS */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10000;
+            max-width: 400px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .notification.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* CONNECTION STATUS */
+        .connection-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            width: 600px;
+        }
+        
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+            font-size: 18px;
+        }
+        
+        .modal-close:hover {
+            background: var(--light-gray);
+        }
+        
+        .modal-content {
+            padding: 32px;
+        }
+        
+        /* FORMS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background: var(--white);
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-black);
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">R</div>
+                <div class="logo-text">Redox Professional</div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">←</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="showSection('dashboard')">
+                    <div class="nav-icon">📊</div>
+                    <div class="nav-text">Dashboard</div>
+                </button>
+                <button class="nav-item" onclick="showSection('pacientes')">
+                    <div class="nav-icon">👥</div>
+                    <div class="nav-text">Pacientes</div>
+                </button>
+                <button class="nav-item" onclick="showSection('planes')">
+                    <div class="nav-icon">📋</div>
+                    <div class="nav-text">Planes</div>
+                </button>
+                <button class="nav-item" onclick="showSection('seguimiento')">
+                    <div class="nav-icon">📈</div>
+                    <div class="nav-text">Seguimiento</div>
+                </button>
+                <button class="nav-item" onclick="showSection('analisis')">
+                    <div class="nav-icon">🔬</div>
+                    <div class="nav-text">Análisis</div>
+                </button>
+				<button class="nav-item" onclick="abrirEvaluacionRedox()">
+    <div class="nav-icon">🌱</div>
+    <div class="nav-text">Evaluación Redox</div>
+</button>
+                <button class="nav-item" onclick="showSection('configuracion')">
+                    <div class="nav-icon">⚙️</div>
+                    <div class="nav-text">Configuración</div>
+                </button>
+            </nav>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                    <div id="connectionStatus" class="connection-status connected">
+                        <span>●</span> Sistema Activo
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="refreshData()">
+                        🔄 <span id="refreshText">Actualizar</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('nuevo-plan')">
+                        🚀 Nuevo Plan
+                    </button>
+                    <button class="btn btn-success" onclick="openModal('nuevo-paciente')">
+                        + Nuevo Paciente
+                    </button>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <!-- DASHBOARD SECTION -->
+                <section id="dashboard" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Total Pacientes</div>
+                                <div class="stat-icon">👥</div>
+                            </div>
+                            <div class="stat-value" id="totalPacientes">24</div>
+                            <div class="stat-change positive">+3 esta semana</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Planes Activos</div>
+                                <div class="stat-icon">📋</div>
+                            </div>
+                            <div class="stat-value" id="planesActivos">18</div>
+                            <div class="stat-change positive">+5 este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Seguimientos Hoy</div>
+                                <div class="stat-icon">📈</div>
+                            </div>
+                            <div class="stat-value" id="seguimientosHoy">12</div>
+                            <div class="stat-change positive">8 completados</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Adherencia Media</div>
+                                <div class="stat-icon">🎯</div>
+                            </div>
+                            <div class="stat-value" id="adherenciaMedia">87%</div>
+                            <div class="stat-change positive">+5% vs mes anterior</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="openModal('nuevo-paciente')">
+                            <div class="action-icon">👤</div>
+                            <div class="action-title">Nuevo Paciente</div>
+                            <div class="action-description">Registrar paciente en el sistema</div>
+                        </div>
+                        
+                        <div class="action-card" onclick="openModal('generar-plan')">
+                            <div class="action-icon">🚀</div>
+                            <div class="action-title">Generar Plan</div>
+                            <div class="action-description">Crear plan automático personalizado</div>
+                        </div>
+						
+						<!-- Agregar este botón junto con los otros 3 -->
+<div class="action-card">
+    <div class="action-icon">🌱</div>
+    <div class="action-title">Evaluación Redox</div>
+    <div class="action-description">Realizar evaluación completa</div>
+</div>
+                        
+                        <div class="action-card" onclick="openModal('seguimiento-diario')">
+                            <div class="action-icon">📝</div>
+                            <div class="action-title">Seguimiento</div>
+                            <div class="action-description">Registrar datos diarios</div>
+                        </div>
+                        
+                        <div class="action-card" onclick="showSection('analisis')">
+                            <div class="action-icon">📊</div>
+                            <div class="action-title">Análisis</div>
+                            <div class="action-description">Ver reportes y métricas</div>
+                        </div>
+                    </div>
+                    
+                    <!-- ACTIVITY TABLE -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Actividad Reciente</h3>
+                            <button class="btn" onclick="refreshActivity()">Actualizar</button>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Actividad</th>
+                                    <th>Paciente/Plan</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityTable">
+                                <tr>
+                                    <td>Plan generado</td>
+                                    <td>María García - Plan SOP</td>
+                                    <td>Hace 2 horas</td>
+                                    <td><span class="stat-change positive">Activo</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Seguimiento registrado</td>
+                                    <td>Carlos López</td>
+                                    <td>Hace 3 horas</td>
+                                    <td><span class="stat-change positive">Completado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Paciente registrado</td>
+                                    <td>Ana Rodríguez</td>
+                                    <td>Ayer</td>
+                                    <td><span class="stat-change positive">Activo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- OTRAS SECCIONES -->
+                <section id="pacientes" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Gestión de Pacientes</h3>
+                            <button class="btn btn-primary" onclick="openModal('nuevo-paciente')">+ Nuevo Paciente</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <div>Funcionalidad de pacientes en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="planes" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Gestión de Planes</h3>
+                            <button class="btn btn-primary" onclick="openModal('generar-plan')">🚀 Generar Plan</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div>Funcionalidad de planes en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="seguimiento" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Seguimiento Diario</h3>
+                            <button class="btn btn-primary" onclick="openModal('seguimiento-diario')">+ Nuevo Registro</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📈</div>
+                            <div>Funcionalidad de seguimiento en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="analisis" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Análisis y Reportes</h3>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <div>Módulo de análisis en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="configuracion" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Configuración del Sistema</h3>
+                        </div>
+                        <div style="padding: 40px;">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Consulta</label>
+                                <input type="text" class="form-input" value="Dietaryplus - Sistema Redox" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Estado del Sistema</label>
+                                <div style="padding: 12px 16px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                    ✅ Sistema funcionando correctamente
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Modal</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+    // Variables globales
+    let currentSection = 'dashboard';
+    let sidebarCollapsed = false;
+    let supabase;
+
+    // Configuración de Supabase
+    const SUPABASE_URL = 'https://uuoxzoqjbquqpvjhszsi.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1b3h6b3FqYnF1cXB2amhzenNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzNzMzMTksImV4cCI6MjA3Mzk0OTMxOX0.u5Ozw8L83w8oXBluZLUr_gX4PGr5GVlX2FcllFruqtY';
+
+    // Inicialización principal
+    document.addEventListener('DOMContentLoaded', async function() {
+        console.log('Dashboard Redox cargado correctamente');
+        
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            updateConnectionStatus('connected', 'Sistema Activo');
+            await loadDashboardData();
+        } catch (error) {
+            console.error('Error inicializando Supabase:', error);
+            updateConnectionStatus('disconnected', 'Error de conexión');
+            showNotification('Error de conexión con la base de datos', 'error');
+        }
+    });
+
+    // FUNCIONES DE CARGA DE DATOS
+    async function loadDashboardData() {
+        try {
+            await Promise.all([
+                loadTotalPacientes(),
+                loadPlanesActivos(),
+                loadSeguimientosHoy(),
+                loadAdherenciaMedia()
+            ]);
+            await loadRecentActivity();
+        } catch (error) {
+            console.error('Error cargando datos del dashboard:', error);
+            showNotification('Error cargando datos', 'error');
+        }
+    }
+
+    async function loadTotalPacientes() {
+        try {
+            const { count, error } = await supabase
+                .from('pacientes')
+                .select('*', { count: 'exact', head: true });
+            
+            if (error) throw error;
+            document.getElementById('totalPacientes').textContent = count || 0;
+        } catch (error) {
+            console.error('Error cargando total pacientes:', error);
+            document.getElementById('totalPacientes').textContent = '--';
+        }
+    }
+
+    async function loadPlanesActivos() {
+        try {
+            const { count, error } = await supabase
+                .from('planes_generados')
+                .select('*', { count: 'exact', head: true })
+                .eq('estado', 'activo');
+            
+            if (error) throw error;
+            document.getElementById('planesActivos').textContent = count || 0;
+        } catch (error) {
+            console.error('Error cargando planes activos:', error);
+            document.getElementById('planesActivos').textContent = '--';
+        }
+    }
+
+    async function loadSeguimientosHoy() {
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const { count, error } = await supabase
+                .from('seguimiento_diario')
+                .select('*', { count: 'exact', head: true })
+                .gte('fecha_registro', today);
+            
+            if (error) throw error;
+            document.getElementById('seguimientosHoy').textContent = count || 0;
+        } catch (error) {
+            console.error('Error cargando seguimientos hoy:', error);
+            document.getElementById('seguimientosHoy').textContent = '--';
+        }
+    }
+
+    async function loadAdherenciaMedia() {
+    try {
+        const fechaHace30Dias = new Date();
+        fechaHace30Dias.setDate(fechaHace30Dias.getDate() - 30);
+        const fechaFormateada = fechaHace30Dias.toISOString().split('T')[0];
+        
+        const { data, error } = await supabase
+            .from('seguimiento_diario')
+            .select('adherencia_dieta')  // Cambiar a adherencia_dieta
+            .not('adherencia_dieta', 'is', null)  // Cambiar a adherencia_dieta
+            .gte('fecha_registro', fechaFormateada);
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            const promedio = data.reduce((sum, item) => sum + item.adherencia_dieta, 0) / data.length;
+            document.getElementById('adherenciaMedia').textContent = Math.round(promedio) + '%';
+        } else {
+            document.getElementById('adherenciaMedia').textContent = 'N/A';
+        }
+    } catch (error) {
+        console.error('Error cargando adherencia media:', error);
+        document.getElementById('adherenciaMedia').textContent = '--';
+    }
+}
+
+    async function loadRecentActivity() {
+        try {
+            const [pacientesResult, planesResult, seguimientosResult] = await Promise.all([
+                supabase
+                    .from('pacientes')
+                    .select('nombre_completo, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(3),
+                supabase
+                    .from('planes_generados')
+                    .select('nombre_plan, created_at, pacientes (nombre_completo)')
+                    .order('created_at', { ascending: false })
+                    .limit(3),
+                supabase
+                    .from('seguimiento_diario')
+                    .select('fecha_registro, pacientes (nombre_completo)')
+                    .order('fecha_registro', { ascending: false })
+                    .limit(3)
+            ]);
+            
+            const activities = [];
+            
+            if (pacientesResult.data) {
+                pacientesResult.data.forEach(p => {
+                    activities.push({
+                        tipo: 'Paciente registrado',
+                        descripcion: p.nombre_completo,
+                        fecha: getRelativeTime(p.created_at),
+                        estado: 'Activo'
+                    });
+                });
+            }
+            
+            if (planesResult.data) {
+                planesResult.data.forEach(p => {
+                    activities.push({
+                        tipo: 'Plan generado',
+                        descripcion: p.pacientes?.nombre_completo + ' - ' + p.nombre_plan,
+                        fecha: getRelativeTime(p.created_at),
+                        estado: 'Activo'
+                    });
+                });
+            }
+            
+            if (seguimientosResult.data) {
+                seguimientosResult.data.forEach(s => {
+                    activities.push({
+                        tipo: 'Seguimiento registrado',
+                        descripcion: s.pacientes?.nombre_completo,
+                        fecha: getRelativeTime(s.fecha_registro),
+                        estado: 'Completado'
+                    });
+                });
+            }
+            
+            activities.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+            updateActivityTable(activities.slice(0, 5));
+            
+        } catch (error) {
+            console.error('Error cargando actividad reciente:', error);
+            document.getElementById('activityTable').innerHTML = `
+                <tr><td colspan="4" style="text-align: center; color: var(--error-red);">
+                    Error cargando actividad reciente
+                </td></tr>
+            `;
+        }
+    }
+
+    // NAVEGACIÓN Y UI
+    // Actualizar la función showSection existente
+function showSection(sectionName) {
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    document.getElementById(sectionName).classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    const titles = {
+        dashboard: 'Dashboard',
+        pacientes: 'Gestión de Pacientes',
+        planes: 'Gestión de Planes',
+        seguimiento: 'Seguimiento Diario',
+        analisis: 'Análisis y Reportes',
+        configuracion: 'Configuración'
+    };
+    
+    document.getElementById('pageTitle').textContent = titles[sectionName];
+    currentSection = sectionName;
+    
+    // Cargar datos específicos de cada sección
+    if (sectionName === 'pacientes') {
+        loadPacientesData();
+    }
+}
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.querySelector('.sidebar-toggle');
+        
+        sidebarCollapsed = !sidebarCollapsed;
+        
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            toggleBtn.textContent = '→';
+        } else {
+            sidebar.classList.remove('collapsed');
+            toggleBtn.textContent = '←';
+        }
+    }
+
+    // MODALES
+    function openModal(type) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+        
+        switch(type) {
+            case 'nuevo-paciente':
+                title.textContent = 'Nuevo Paciente';
+                content.innerHTML = getNuevoPacienteForm();
+                break;
+            case 'generar-plan':
+                title.textContent = 'Generar Plan Redox';
+                content.innerHTML = getGenerarPlanForm();
+                setTimeout(() => loadPacientesInSelect('pacientePlan'), 100);
+                break;
+            case 'seguimiento-diario':
+                title.textContent = 'Seguimiento Diario';
+                content.innerHTML = getSeguimientoForm();
+                setTimeout(() => loadPacientesInSelect('pacienteSeguimiento'), 100);
+                break;
+            default:
+                title.textContent = 'Funcionalidad';
+                content.innerHTML = '<p>Funcionalidad "' + type + '" en desarrollo</p>';
+        }
+        
+        overlay.classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+    }
+
+    // FORMULARIOS HTML
+    function getNuevoPacienteForm() {
+        return `
+            <form onsubmit="event.preventDefault(); guardarPaciente();">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-input" id="nombreCompleto" placeholder="Nombre y apellidos" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" id="emailPaciente" placeholder="email@ejemplo.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="telefonoPaciente" placeholder="+34 XXX XXX XXX">
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Condición Principal</label>
+                            <select class="form-select" id="condicionPrincipal">
+                                <option value="">Seleccionar...</option>
+                                <option value="sop">SOP</option>
+                                <option value="estreñimiento">Estreñimiento</option>
+                                <option value="perdida-peso">Pérdida de peso</option>
+                                <option value="inflamacion">Inflamación sistémica</option>
+                                <option value="fatiga-cronica">Fatiga crónica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Objetivo del Tratamiento</label>
+                            <input type="text" class="form-input" id="objetivoTratamiento" placeholder="Ej: Pérdida de peso, regulación hormonal...">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-textarea" id="notasPaciente" placeholder="Información adicional, alergias, medicamentos..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+                </div>
+            </form>
+        `;
+    }
+
+    function getGenerarPlanForm() {
+        return `
+            <form onsubmit="event.preventDefault(); generarPlan();">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Paciente *</label>
+                            <select class="form-select" id="pacientePlan" required>
+                                <option value="">Seleccionar paciente...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Condición Principal *</label>
+                            <select class="form-select" id="condicionPlan" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="sop">SOP (Síndrome Ovario Poliquístico)</option>
+                                <option value="estreñimiento">Estreñimiento Severo</option>
+                                <option value="perdida-peso">Pérdida de Peso</option>
+                                <option value="inflamacion">Inflamación Sistémica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duración (semanas)</label>
+                            <select class="form-select" id="duracionPlan">
+                                <option value="4">4 semanas</option>
+                                <option value="8" selected>8 semanas</option>
+                                <option value="12">12 semanas</option>
+                                <option value="16">16 semanas</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Terapias Físicas</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="terapiaInfrarrojo" checked> Terapia Infrarrojo
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="termogenesis" checked> Termogénesis
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="estimulacionVagal"> Estimulación Vagal
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="tecnicasRespiracion"> Técnicas Respiración
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Exclusiones</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sinGluten"> Sin Gluten
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sinLacteos"> Sin Lácteos
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sinFrutosSecos"> Sin Frutos Secos
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="sinHuevos"> Sin Huevos
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Generar Plan Redox</button>
+                </div>
+            </form>
+        `;
+    }
+
+    function getSeguimientoForm() {
+        return `
+            <form onsubmit="event.preventDefault(); guardarSeguimiento();">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Paciente *</label>
+                            <select class="form-select" id="pacienteSeguimiento" required>
+                                <option value="">Seleccionar paciente...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-input" id="fechaSeguimiento" value="${new Date().toISOString().split('T')[0]}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Energía (1-10)</label>
+                            <input type="range" min="1" max="10" value="5" class="form-input" id="energiaNivel" oninput="updateRangeValue('energiaNivel', 'energiaValue')">
+                            <div style="text-align: center; margin-top: 4px; font-size: 14px; color: var(--text-secondary);" id="energiaValue">5</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Peso (kg)</label>
+                            <input type="number" class="form-input" id="pesoKg" step="0.1" placeholder="70.5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Adherencia (%)</label>
+                            <input type="range" min="0" max="100" value="80" class="form-input" id="adherenciaPlan" oninput="updateRangeValue('adherenciaPlan', 'adherenciaValue', '%')">
+                            <div style="text-align: center; margin-top: 4px; font-size: 14px; color: var(--text-secondary);" id="adherenciaValue">80%</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-textarea" id="notasSeguimiento" placeholder="Observaciones del día..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Seguimiento</button>
+                </div>
+            </form>
+        `;
+    }
+
+    // FUNCIONES DE GUARDADO CON BASE DE DATOS
+    async function guardarPaciente() {
+        const nombre = document.getElementById('nombreCompleto').value.trim();
+        const email = document.getElementById('emailPaciente').value.trim();
+        const telefono = document.getElementById('telefonoPaciente').value.trim();
+        const condicion = document.getElementById('condicionPrincipal').value;
+        const objetivo = document.getElementById('objetivoTratamiento').value.trim();
+        const notas = document.getElementById('notasPaciente').value.trim();
+        
+        if (!nombre || !email) {
+            showNotification('Por favor complete los campos obligatorios', 'error');
+            return;
+        }
+        
+        try {
+            const { data, error } = await supabase
+                .from('pacientes')
+                .insert([{
+                    nombre_completo: nombre,
+                    email: email,
+                    telefono: telefono || null,
+                    condicion_principal: condicion || null,
+                    objetivo_tratamiento: objetivo || null,
+                    notas: notas || null,
+                    estado: 'activo'
+                }])
+                .select();
+            
+            if (error) throw error;
+            
+            showNotification('Paciente guardado correctamente', 'success');
+            closeModal();
+            await loadDashboardData();
+            
+        } catch (error) {
+            console.error('Error guardando paciente:', error);
+            showNotification('Error al guardar el paciente: ' + error.message, 'error');
+        }
+    }
+
+    async function generarPlan() {
+        const pacienteId = document.getElementById('pacientePlan').value;
+        const condicion = document.getElementById('condicionPlan').value;
+        const duracion = document.getElementById('duracionPlan').value;
+        
+        if (!pacienteId || !condicion) {
+            showNotification('Por favor complete los campos obligatorios', 'error');
+            return;
+        }
+        
+        const terapias = [];
+        if (document.getElementById('terapiaInfrarrojo')?.checked) terapias.push('infrarrojo');
+        if (document.getElementById('termogenesis')?.checked) terapias.push('termogenesis');
+        if (document.getElementById('estimulacionVagal')?.checked) terapias.push('vagal');
+        if (document.getElementById('tecnicasRespiracion')?.checked) terapias.push('respiracion');
+        
+        const exclusiones = [];
+        if (document.getElementById('sinGluten')?.checked) exclusiones.push('sin-gluten');
+        if (document.getElementById('sinLacteos')?.checked) exclusiones.push('sin-lacteos');
+        if (document.getElementById('sinFrutosSecos')?.checked) exclusiones.push('sin-frutos-secos');
+        if (document.getElementById('sinHuevos')?.checked) exclusiones.push('sin-huevos');
+        
+        try {
+            const { data, error } = await supabase
+                .from('planes_generados')
+                .insert([{
+                    paciente_id: pacienteId,
+                    nombre_plan: `Plan ${condicion.toUpperCase()} - ${duracion} semanas`,
+                    condicion_principal: condicion,
+                    duracion_semanas: parseInt(duracion),
+                    terapias_fisicas: terapias,
+                    exclusiones_alimentarias: exclusiones,
+                    estado: 'activo',
+                    contenido_plan: `Plan personalizado para ${condicion} con duración de ${duracion} semanas`
+                }])
+                .select();
+            
+            if (error) throw error;
+            
+            showNotification('Plan generado correctamente', 'success');
+            closeModal();
+            await loadDashboardData();
+            
+        } catch (error) {
+            console.error('Error generando plan:', error);
+            showNotification('Error al generar el plan: ' + error.message, 'error');
+        }
+    }
+
+    async function guardarSeguimiento() {
+    const pacienteId = document.getElementById('pacienteSeguimiento').value;
+    const fecha = document.getElementById('fechaSeguimiento').value;
+    const energia = document.getElementById('energiaNivel').value;
+    const peso = document.getElementById('pesoKg').value;
+    const adherencia = document.getElementById('adherenciaPlan').value;
+    const notas = document.getElementById('notasSeguimiento').value.trim();
+    
+    if (!pacienteId) {
+        showNotification('Por favor seleccione un paciente', 'error');
+        return;
+    }
+    
+    try {
+        const { data, error } = await supabase
+            .from('seguimiento_diario')
+            .insert([{
+                paciente_id: pacienteId,
+                fecha_registro: fecha,
+                energia_nivel: parseInt(energia),
+                peso_kg: peso ? parseFloat(peso) : null,
+                adherencia_dieta: parseInt(adherencia),  // Cambiar a adherencia_dieta
+                notas: notas || null
+            }])
+            .select();
+        
+        if (error) throw error;
+        
+        showNotification('Seguimiento guardado correctamente', 'success');
+        closeModal();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error guardando seguimiento:', error);
+        showNotification('Error al guardar el seguimiento: ' + error.message, 'error');
+    }
+}
+
+    // FUNCIONES UTILITARIAS
+    function updateRangeValue(rangeId, displayId, suffix = '') {
+        const value = document.getElementById(rangeId).value;
+        document.getElementById(displayId).textContent = value + suffix;
+    }
+
+    function updateConnectionStatus(status, text) {
+        const statusElement = document.getElementById('connectionStatus');
+        statusElement.className = 'connection-status ' + status;
+        statusElement.innerHTML = '<span>●</span> ' + text;
+    }
+
+    function showNotification(mensaje, tipo = 'info') {
+        const existente = document.querySelector('.notification');
+        if (existente) existente.remove();
+        
+        const notification = document.createElement('div');
+        notification.className = 'notification ' + tipo;
+        notification.textContent = mensaje;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(function() {
+            notification.remove();
+        }, 5000);
+    }
+
+    function getRelativeTime(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+        
+        if (diffInMinutes < 1) return 'Ahora mismo';
+        if (diffInMinutes < 60) return `Hace ${diffInMinutes}m`;
+        
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `Hace ${diffInHours}h`;
+        
+        const diffInDays = Math.floor(diffInHours / 24);
+        if (diffInDays < 7) return `Hace ${diffInDays}d`;
+        
+        return date.toLocaleDateString('es-ES');
+    }
+
+    function updateActivityTable(activities) {
+        const tableBody = document.getElementById('activityTable');
+        
+        if (activities.length === 0) {
+            tableBody.innerHTML = `
+                <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">
+                    No hay actividad reciente
+                </td></tr>
+            `;
+            return;
+        }
+        
+        tableBody.innerHTML = activities.map(activity => `
+            <tr>
+                <td>${activity.tipo}</td>
+                <td>${activity.descripcion}</td>
+                <td>${activity.fecha}</td>
+                <td><span class="stat-change positive">${activity.estado}</span></td>
+            </tr>
+        `).join('');
+    }
+
+    async function loadPacientesInSelect(selectId) {
+        try {
+            const { data, error } = await supabase
+                .from('pacientes')
+                .select('id, nombre_completo')
+                .eq('estado', 'activo')
+                .order('nombre_completo');
+            
+            if (error) throw error;
+            
+            const select = document.getElementById(selectId);
+            if (select && data) {
+                const defaultOption = select.querySelector('option[value=""]');
+                select.innerHTML = '';
+                if (defaultOption) {
+                    select.appendChild(defaultOption.cloneNode(true));
+                }
+                
+                data.forEach(paciente => {
+                    const option = document.createElement('option');
+                    option.value = paciente.id;
+                    option.textContent = paciente.nombre_completo;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando pacientes en select:', error);
+            showNotification('Error cargando lista de pacientes', 'error');
+        }
+    }
+
+    async function refreshData() {
+        const refreshText = document.getElementById('refreshText');
+        refreshText.textContent = 'Actualizando...';
+        
+        try {
+            await loadDashboardData();
+            refreshText.textContent = 'Actualizado ✓';
+            showNotification('Datos actualizados correctamente', 'success');
+            
+            setTimeout(function() {
+                refreshText.textContent = 'Actualizar';
+            }, 2000);
+            
+        } catch (error) {
+            refreshText.textContent = 'Error';
+            showNotification('Error al actualizar datos', 'error');
+            
+            setTimeout(function() {
+                refreshText.textContent = 'Actualizar';
+            }, 2000);
+        }
+    }
+
+    async function refreshActivity() {
+        try {
+            await loadRecentActivity();
+            showNotification('Actividad actualizada', 'info');
+        } catch (error) {
+            showNotification('Error actualizando actividad', 'error');
+        }
+    }
+	
+	// FUNCIONES PARA VER Y EDITAR PACIENTES
+	
+async function verPaciente(id) {
+    try {
+        const { data, error } = await supabase
+            .from('pacientes')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+        
+        title.textContent = 'Detalles del Paciente';
+        content.innerHTML = `
+            <div class="form-grid">
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-input" value="${data.nombre_completo || ''}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="${data.email || ''}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-input" value="${data.telefono || 'No especificado'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        <input type="text" class="form-input" value="${data.estado || 'Activo'}" readonly>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">Condición Principal</label>
+                        <input type="text" class="form-input" value="${data.condicion_principal || 'No especificada'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objetivo del Tratamiento</label>
+                        <input type="text" class="form-input" value="${data.objetivo_tratamiento || 'No especificado'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fecha de Registro</label>
+                        <input type="text" class="form-input" value="${new Date(data.created_at).toLocaleDateString('es-ES')}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notas</label>
+                        <textarea class="form-textarea" readonly>${data.notas || 'Sin notas adicionales'}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 24px; text-align: right;">
+                <button type="button" class="btn" onclick="closeModal()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal(); editarPaciente('${id}');">Editar Paciente</button>
+            </div>
+        `;
+        
+        overlay.classList.add('active');
+        
+    } catch (error) {
+        console.error('Error cargando paciente:', error);
+        showNotification('Error al cargar los datos del paciente', 'error');
+    }
+}
+
+async function editarPaciente(id) {
+    try {
+        const { data, error } = await supabase
+            .from('pacientes')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+        
+        title.textContent = 'Editar Paciente';
+        content.innerHTML = `
+            <form onsubmit="event.preventDefault(); actualizarPaciente('${id}');">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-input" id="editNombreCompleto" value="${data.nombre_completo || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" id="editEmailPaciente" value="${data.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="editTelefonoPaciente" value="${data.telefono || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="editEstadoPaciente">
+                                <option value="activo" ${data.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                                <option value="pausado" ${data.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
+                                <option value="completado" ${data.estado === 'completado' ? 'selected' : ''}>Completado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Condición Principal</label>
+                            <select class="form-select" id="editCondicionPrincipal">
+                                <option value="">Seleccionar...</option>
+                                <option value="sop" ${data.condicion_principal === 'sop' ? 'selected' : ''}>SOP</option>
+                                <option value="estreñimiento" ${data.condicion_principal === 'estreñimiento' ? 'selected' : ''}>Estreñimiento</option>
+                                <option value="perdida-peso" ${data.condicion_principal === 'perdida-peso' ? 'selected' : ''}>Pérdida de peso</option>
+                                <option value="inflamacion" ${data.condicion_principal === 'inflamacion' ? 'selected' : ''}>Inflamación sistémica</option>
+                                <option value="fatiga-cronica" ${data.condicion_principal === 'fatiga-cronica' ? 'selected' : ''}>Fatiga crónica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Objetivo del Tratamiento</label>
+                            <input type="text" class="form-input" id="editObjetivoTratamiento" value="${data.objetivo_tratamiento || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-textarea" id="editNotasPaciente">${data.notas || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Paciente</button>
+                </div>
+            </form>
+        `;
+        
+        overlay.classList.add('active');
+        
+    } catch (error) {
+        console.error('Error cargando paciente para editar:', error);
+        showNotification('Error al cargar los datos del paciente', 'error');
+    }
+}
+
+async function actualizarPaciente(id) {
+    const nombre = document.getElementById('editNombreCompleto').value.trim();
+    const email = document.getElementById('editEmailPaciente').value.trim();
+    const telefono = document.getElementById('editTelefonoPaciente').value.trim();
+    const estado = document.getElementById('editEstadoPaciente').value;
+    const condicion = document.getElementById('editCondicionPrincipal').value;
+    const objetivo = document.getElementById('editObjetivoTratamiento').value.trim();
+    const notas = document.getElementById('editNotasPaciente').value.trim();
+    
+    if (!nombre || !email) {
+        showNotification('Por favor complete los campos obligatorios', 'error');
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('pacientes')
+            .update({
+                nombre_completo: nombre,
+                email: email,
+                telefono: telefono || null,
+                estado: estado,
+                condicion_principal: condicion || null,
+                objetivo_tratamiento: objetivo || null,
+                notas: notas || null
+            })
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        showNotification('Paciente actualizado correctamente', 'success');
+        closeModal();
+        
+        // Recargar datos
+        await loadPacientesData();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error actualizando paciente:', error);
+        showNotification('Error al actualizar el paciente: ' + error.message, 'error');
+    }
+}
+
+// Función adicional para eliminar pacientes (opcional)
+
+async function eliminarPaciente(id) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este paciente? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('pacientes')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        showNotification('Paciente eliminado correctamente', 'success');
+        
+        // Recargar datos
+        await loadPacientesData();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error eliminando paciente:', error);
+        showNotification('Error al eliminar el paciente: ' + error.message, 'error');
+    }
+}
+	
+	// FUNCIONES PARA GESTIÓN DE PACIENTES
+	
+// Cargar y mostrar lista de pacientes
+
+async function loadPacientesData() {
+    const tableContainer = document.querySelector('#pacientes .empty-state').parentNode;
+    
+    try {
+        const { data, error } = await supabase
+            .from('pacientes')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            tableContainer.innerHTML = `
+                <div class="table-header">
+                    <h3 class="table-title">Gestión de Pacientes</h3>
+                    <button class="btn btn-primary" onclick="openModal('nuevo-paciente')">+ Nuevo Paciente</button>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Condición</th>
+                            <th>Estado</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(paciente => `
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">${paciente.nombre_completo || 'Sin nombre'}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">${paciente.telefono || 'Sin teléfono'}</div>
+                                </td>
+                                <td>${paciente.email || 'Sin email'}</td>
+                                <td>${paciente.condicion_principal || 'No especificada'}</td>
+                                <td><span class="stat-change positive">${paciente.estado || 'Activo'}</span></td>
+                                <td>${new Date(paciente.created_at).toLocaleDateString('es-ES')}</td>
+                                <td>
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; margin-right: 4px;" onclick="verPaciente('${paciente.id}')">Ver</button>
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; margin-right: 4px;" onclick="editarPaciente('${paciente.id}')">Editar</button>
+                                    <button class="btn" style="padding: 6px 12px; font-size: 12px; background: var(--error-red); color: white; border-color: var(--error-red);" onclick="eliminarPaciente('${paciente.id}')">Eliminar</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            tableContainer.innerHTML = `
+                <div class="table-header">
+                    <h3 class="table-title">Gestión de Pacientes</h3>
+                    <button class="btn btn-primary" onclick="openModal('nuevo-paciente')">+ Nuevo Paciente</button>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">👥</div>
+                    <div>No hay pacientes registrados</div>
+                    <button class="btn btn-primary" style="margin-top: 15px;" onclick="openModal('nuevo-paciente')">Registrar Primer Paciente</button>
+                </div>
+            `;
+        }
+        
+    } catch (error) {
+        console.error('Error cargando pacientes:', error);
+        showNotification('Error cargando lista de pacientes', 'error');
+    }
+}
+
+// Ver detalles de un paciente
+async function verPaciente(id) {
+    try {
+        const { data, error } = await supabase
+            .from('pacientes')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+        
+        title.textContent = 'Detalles del Paciente';
+        content.innerHTML = `
+            <div class="form-grid">
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-input" value="${data.nombre_completo || ''}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-input" value="${data.email || ''}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" class="form-input" value="${data.telefono || 'No especificado'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Estado</label>
+                        <input type="text" class="form-input" value="${data.estado || 'Activo'}" readonly>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">Condición Principal</label>
+                        <input type="text" class="form-input" value="${data.condicion_principal || 'No especificada'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Objetivo del Tratamiento</label>
+                        <input type="text" class="form-input" value="${data.objetivo_tratamiento || 'No especificado'}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fecha de Registro</label>
+                        <input type="text" class="form-input" value="${new Date(data.created_at).toLocaleDateString('es-ES')}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Notas</label>
+                        <textarea class="form-textarea" readonly>${data.notas || 'Sin notas adicionales'}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 24px; text-align: right;">
+                <button type="button" class="btn" onclick="closeModal()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="closeModal(); editarPaciente('${id}');">Editar Paciente</button>
+            </div>
+        `;
+        
+        overlay.classList.add('active');
+        
+    } catch (error) {
+        console.error('Error cargando paciente:', error);
+        showNotification('Error al cargar los datos del paciente', 'error');
+    }
+}
+
+// Editar un paciente
+async function editarPaciente(id) {
+    try {
+        const { data, error } = await supabase
+            .from('pacientes')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const content = document.getElementById('modalContent');
+        
+        title.textContent = 'Editar Paciente';
+        content.innerHTML = `
+            <form onsubmit="event.preventDefault(); actualizarPaciente('${id}');">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-input" id="editNombreCompleto" value="${data.nombre_completo || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-input" id="editEmailPaciente" value="${data.email || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono</label>
+                            <input type="tel" class="form-input" id="editTelefonoPaciente" value="${data.telefono || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="editEstadoPaciente">
+                                <option value="activo" ${data.estado === 'activo' ? 'selected' : ''}>Activo</option>
+                                <option value="pausado" ${data.estado === 'pausado' ? 'selected' : ''}>Pausado</option>
+                                <option value="completado" ${data.estado === 'completado' ? 'selected' : ''}>Completado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Condición Principal</label>
+                            <select class="form-select" id="editCondicionPrincipal">
+                                <option value="">Seleccionar...</option>
+                                <option value="sop" ${data.condicion_principal === 'sop' ? 'selected' : ''}>SOP</option>
+                                <option value="estreñimiento" ${data.condicion_principal === 'estreñimiento' ? 'selected' : ''}>Estreñimiento</option>
+                                <option value="perdida-peso" ${data.condicion_principal === 'perdida-peso' ? 'selected' : ''}>Pérdida de peso</option>
+                                <option value="inflamacion" ${data.condicion_principal === 'inflamacion' ? 'selected' : ''}>Inflamación sistémica</option>
+                                <option value="fatiga-cronica" ${data.condicion_principal === 'fatiga-cronica' ? 'selected' : ''}>Fatiga crónica</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Objetivo del Tratamiento</label>
+                            <input type="text" class="form-input" id="editObjetivoTratamiento" value="${data.objetivo_tratamiento || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notas</label>
+                            <textarea class="form-textarea" id="editNotasPaciente">${data.notas || ''}</textarea>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Paciente</button>
+                </div>
+            </form>
+        `;
+        
+        overlay.classList.add('active');
+        
+    } catch (error) {
+        console.error('Error cargando paciente para editar:', error);
+        showNotification('Error al cargar los datos del paciente', 'error');
+    }
+}
+
+// Actualizar datos del paciente
+async function actualizarPaciente(id) {
+    const nombre = document.getElementById('editNombreCompleto').value.trim();
+    const email = document.getElementById('editEmailPaciente').value.trim();
+    const telefono = document.getElementById('editTelefonoPaciente').value.trim();
+    const estado = document.getElementById('editEstadoPaciente').value;
+    const condicion = document.getElementById('editCondicionPrincipal').value;
+    const objetivo = document.getElementById('editObjetivoTratamiento').value.trim();
+    const notas = document.getElementById('editNotasPaciente').value.trim();
+    
+    if (!nombre || !email) {
+        showNotification('Por favor complete los campos obligatorios', 'error');
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('pacientes')
+            .update({
+                nombre_completo: nombre,
+                email: email,
+                telefono: telefono || null,
+                estado: estado,
+                condicion_principal: condicion || null,
+                objetivo_tratamiento: objetivo || null,
+                notas: notas || null
+            })
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        showNotification('Paciente actualizado correctamente', 'success');
+        closeModal();
+        
+        // Recargar datos
+        await loadPacientesData();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error actualizando paciente:', error);
+        showNotification('Error al actualizar el paciente: ' + error.message, 'error');
+    }
+}
+
+// ============================================================================
+// EVALUACIÓN REDOX - VERSIÓN BÁSICA Y SEGURA
+// ============================================================================
+
+// Variables para evaluación
+let evaluacionRedoxActiva = false;
+
+// Función principal
+function abrirEvaluacionRedox() {
+    alert('Evaluación Redox - Función básica funcionando correctamente');
+    console.log('Evaluación Redox activada');
+}
+
+// Agregar botón al dashboard
+function agregarBotonEvaluacionBasico() {
+    const actionsGrid = document.querySelector('.actions-grid');
+    if (actionsGrid && !document.querySelector('.redox-action-card')) {
+        const botonHTML = `
+            <a href="#" class="action-card redox-action-card" onclick="abrirEvaluacionRedox(); return false;">
+                <div class="action-icon">🌱</div>
+                <div class="action-title">Evaluación Redox</div>
+                <div class="action-description">Evaluación básica - En desarrollo</div>
+            </a>
+        `;
+        actionsGrid.insertAdjacentHTML('beforeend', botonHTML);
+        console.log('Botón Evaluación Redox agregado');
+    }
+}
+
+function abrirEvaluacionRedox() {
+    // Crear modal si no existe
+    if (!document.getElementById('modalEvaluacionRedox')) {
+        const modalHTML = `
+            <div id="modalEvaluacionRedox" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px);">
+                <div class="modal-content" style="background: white; border-radius: 16px; width: 95%; max-width: 1200px; height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div class="modal-header" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: white; padding: 25px 35px; display: flex; justify-content: space-between; align-items: center; border-radius: 16px 16px 0 0;">
+                        <h2 style="margin: 0; font-size: 28px; font-weight: 600;">🌱 Evaluación Redox Completa</h2>
+                        <button onclick="cerrarEvaluacionRedox()" style="background: none; border: none; color: white; font-size: 32px; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">&times;</button>
+                    </div>
+                    <div class="modal-body" style="flex: 1; padding: 40px; overflow-y: auto; font-size: 16px;">
+                        <div style="max-width: 800px; margin: 0 auto;">
+                            <h3 style="color: #1e293b; margin-bottom: 25px; font-size: 24px;">Paso 1 de 8: Selección de Paciente</h3>
+                            
+                            <div style="background: #f8fafc; padding: 25px; border-radius: 12px; margin-bottom: 30px; border-left: 4px solid #3b82f6;">
+                                <p style="margin: 0; color: #475569; font-size: 16px;">Esta evaluación recopilará información completa del paciente para generar un informe diagnóstico personalizado basado en la metodología Redox.</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 30px;">
+                                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 10px; font-size: 16px;">Seleccionar Paciente:</label>
+                                <select style="width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px;">
+                                    <option value="">Cargando pacientes...</option>
+                                </select>
+                            </div>
+                            
+                            <div style="margin-bottom: 30px;">
+                                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 10px; font-size: 16px;">Motivo de la consulta:</label>
+                                <textarea style="width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 16px; min-height: 120px; resize: vertical;" placeholder="Describe el motivo principal de la consulta..."></textarea>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; margin-top: 40px; padding-top: 25px; border-top: 1px solid #e5e7eb;">
+                                <button onclick="cerrarEvaluacionRedox()" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">Cancelar</button>
+                                <button onclick="siguientePaso()" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);">Siguiente →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    // Mostrar modal
+    document.getElementById('modalEvaluacionRedox').style.display = 'flex';
+    console.log('Modal de Evaluación Redox abierto');
+}
+
+function cerrarEvaluacionRedox() {
+    const modal = document.getElementById('modalEvaluacionRedox');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function siguientePaso() {
+    alert('Función "Siguiente paso" - Aquí implementaremos los 8 pasos de evaluación');
+}
+
+// Inicializar cuando cargue la página
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(agregarBotonEvaluacionBasico, 1000);
+});
+
+console.log('Evaluación Redox - Versión básica cargada');
+
+// Versión de debugging para encontrar el problema
+function buscarContenedorAcciones() {
+    // Intentar diferentes selectores posibles
+    const posiblesSelectores = [
+        '.actions-grid',
+        '.quick-actions .actions-grid', 
+        '.action-cards',
+        '.dashboard-actions',
+        '[class*="action"]'
+    ];
+    
+    for (let selector of posiblesSelectores) {
+        const elemento = document.querySelector(selector);
+        if (elemento) {
+            console.log('Contenedor encontrado:', selector);
+            return elemento;
+        }
+    }
+    
+    console.log('No se encontró contenedor de acciones');
+    return null;
+}
+
+function agregarBotonDebug() {
+    const contenedor = buscarContenedorAcciones();
+    if (contenedor) {
+        console.log('Agregando botón al contenedor');
+        // Código para agregar botón aquí
+    } else {
+        console.log('ERROR: No se puede agregar el botón');
+    }
+}
+
+// Ejecutar en 2 segundos para dar tiempo al DOM
+setTimeout(agregarBotonDebug, 2000);
+
+// Eliminar paciente
+async function eliminarPaciente(id) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este paciente? Esta acción no se puede deshacer.')) {
+        return;
+    }
+    
+    try {
+        const { error } = await supabase
+            .from('pacientes')
+            .delete()
+            .eq('id', id);
+        
+        if (error) throw error;
+        
+        showNotification('Paciente eliminado correctamente', 'success');
+        
+        // Recargar datos
+        await loadPacientesData();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error eliminando paciente:', error);
+        showNotification('Error al eliminar el paciente: ' + error.message, 'error');
+    }
+}
+</script>
+</body>
+</html>

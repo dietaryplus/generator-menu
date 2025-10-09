@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Redox Professional - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-black: #1a1a1a;
+            --secondary-black: #2d2d2d;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #666666;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --white: #ffffff;
+            --border-light: #e8e8e8;
+            --success-green: #27ae60;
+            --error-red: #e74c3c;
+            --warning-orange: #f39c12;
+            --info-blue: #3498db;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--light-gray);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-black);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.collapsed .logo-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            right: -12px;
+            top: 32px;
+            width: 24px;
+            height: 24px;
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            font-size: 12px;
+        }
+        
+        .sidebar-toggle:hover {
+            background: var(--light-gray);
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .nav-item:hover {
+            background: var(--light-gray);
+            color: var(--text-primary);
+        }
+        
+        .nav-item.active {
+            background: var(--primary-black);
+            color: var(--white);
+        }
+        
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        
+        .nav-text {
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar.collapsed .nav-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px;
+        }
+        
+        .sidebar.collapsed .nav-icon {
+            margin-right: 0;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .main-header {
+            background: var(--white);
+            border-bottom: 1px solid var(--border-light);
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background: var(--white);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--light-gray);
+        }
+        
+        .btn-primary {
+            background: var(--primary-black);
+            color: var(--white);
+            border-color: var(--primary-black);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-black);
+        }
+        
+        .btn-success {
+            background: var(--success-green);
+            color: var(--white);
+            border-color: var(--success-green);
+        }
+        
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+        }
+        
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 24px;
+            transition: box-shadow 0.2s;
+        }
+        
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .stat-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-change {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .stat-change.positive {
+            color: var(--success-green);
+        }
+        
+        /* QUICK ACTIONS */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .action-card {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        .action-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--light-gray);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 12px;
+        }
+        
+        .action-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .action-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        /* TABLE CONTAINER */
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+        
+        .table-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th,
+        .table td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .table td {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .table tbody tr:hover {
+            background: var(--light-gray);
+        }
+        
+        /* LOADING */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-top: 2px solid var(--primary-black);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* SECTION VISIBILITY */
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* NOTIFICATIONS */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10000;
+            max-width: 400px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .notification.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .notification.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        /* CONNECTION STATUS */
+        .connection-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            width: 600px;
+        }
+        
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+            font-size: 18px;
+        }
+        
+        .modal-close:hover {
+            background: var(--light-gray);
+        }
+        
+        .modal-content {
+            padding: 32px;
+        }
+        
+        /* FORMS */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            background: var(--white);
+        }
+        
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-black);
+            box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">R</div>
+                <div class="logo-text">Redox Professional</div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">←</button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-item active" onclick="showSection('dashboard')">
+                    <div class="nav-icon">📊</div>
+                    <div class="nav-text">Dashboard</div>
+                </button>
+                <button class="nav-item" onclick="showSection('pacientes')">
+                    <div class="nav-icon">👥</div>
+                    <div class="nav-text">Pacientes</div>
+                </button>
+                <button class="nav-item" onclick="showSection('planes')">
+                    <div class="nav-icon">📋</div>
+                    <div class="nav-text">Planes</div>
+                </button>
+                <button class="nav-item" onclick="showSection('seguimiento')">
+                    <div class="nav-icon">📈</div>
+                    <div class="nav-text">Seguimiento</div>
+                </button>
+                <button class="nav-item" onclick="showSection('analisis')">
+                    <div class="nav-icon">🔬</div>
+                    <div class="nav-text">Análisis</div>
+                </button>
+                <button class="nav-item" onclick="showSection('configuracion')">
+                    <div class="nav-icon">⚙️</div>
+                    <div class="nav-text">Configuración</div>
+                </button>
+            </nav>
+        </aside>
+        
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <header class="main-header">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                    <div id="connectionStatus" class="connection-status connected">
+                        <span>●</span> Sistema Activo
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="refreshData()">
+                        🔄 <span id="refreshText">Actualizar</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('nuevo-plan')">
+                        🚀 Nuevo Plan
+                    </button>
+                    <button class="btn btn-success" onclick="openModal('nuevo-paciente')">
+                        + Nuevo Paciente
+                    </button>
+                </div>
+            </header>
+            
+            <div class="content-area">
+                <!-- DASHBOARD SECTION -->
+                <section id="dashboard" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Total Pacientes</div>
+                                <div class="stat-icon">👥</div>
+                            </div>
+                            <div class="stat-value" id="totalPacientes">24</div>
+                            <div class="stat-change positive">+3 esta semana</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Planes Activos</div>
+                                <div class="stat-icon">📋</div>
+                            </div>
+                            <div class="stat-value" id="planesActivos">18</div>
+                            <div class="stat-change positive">+5 este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Seguimientos Hoy</div>
+                                <div class="stat-icon">📈</div>
+                            </div>
+                            <div class="stat-value" id="seguimientosHoy">12</div>
+                            <div class="stat-change positive">8 completados</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-title">Adherencia Media</div>
+                                <div class="stat-icon">🎯</div>
+                            </div>
+                            <div class="stat-value" id="adherenciaMedia">87%</div>
+                            <div class="stat-change positive">+5% vs mes anterior</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="openModal('nuevo-paciente')">
+                            <div class="action-icon">👤</div>
+                            <div class="action-title">Nuevo Paciente</div>
+                            <div class="action-description">Registrar paciente en el sistema</div>
+                        </div>
+                        
+                        <div class="action-card" onclick="openModal('generar-plan')">
+                            <div class="action-icon">🚀</div>
+                            <div class="action-title">Generar Plan</div>
+                            <div class="action-description">Crear plan automático personalizado</div>
+                        </div>
+                        
+                        <div class="action-card" onclick="openModal('seguimiento-diario')">
+                            <div class="action-icon">📝</div>
+                            <div class="action-title">Seguimiento</div>
+                            <div class="action-description">Registrar datos diarios</div>
+                        </div>
+                        
+                        <div class="action-card" onclick="showSection('analisis')">
+                            <div class="action-icon">📊</div>
+                            <div class="action-title">Análisis</div>
+                            <div class="action-description">Ver reportes y métricas</div>
+                        </div>
+                    </div>
+                    
+                    <!-- ACTIVITY TABLE -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Actividad Reciente</h3>
+                            <button class="btn" onclick="refreshActivity()">Actualizar</button>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Actividad</th>
+                                    <th>Paciente/Plan</th>
+                                    <th>Fecha</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityTable">
+                                <tr>
+                                    <td>Plan generado</td>
+                                    <td>María García - Plan SOP</td>
+                                    <td>Hace 2 horas</td>
+                                    <td><span class="stat-change positive">Activo</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Seguimiento registrado</td>
+                                    <td>Carlos López</td>
+                                    <td>Hace 3 horas</td>
+                                    <td><span class="stat-change positive">Completado</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Paciente registrado</td>
+                                    <td>Ana Rodríguez</td>
+                                    <td>Ayer</td>
+                                    <td><span class="stat-change positive">Activo</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                
+                <!-- OTRAS SECCIONES -->
+                <section id="pacientes" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Gestión de Pacientes</h3>
+                            <button class="btn btn-primary" onclick="openModal('nuevo-paciente')">+ Nuevo Paciente</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <div>Funcionalidad de pacientes en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="planes" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Gestión de Planes</h3>
+                            <button class="btn btn-primary" onclick="openModal('generar-plan')">🚀 Generar Plan</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <div>Funcionalidad de planes en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="seguimiento" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Seguimiento Diario</h3>
+                            <button class="btn btn-primary" onclick="openModal('seguimiento-diario')">+ Nuevo Registro</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📈</div>
+                            <div>Funcionalidad de seguimiento en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="analisis" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Análisis y Reportes</h3>
+                        </div>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <div>Módulo de análisis en desarrollo</div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section id="configuracion" class="content-section">
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Configuración del Sistema</h3>
+                        </div>
+                        <div style="padding: 40px;">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de la Consulta</label>
+                                <input type="text" class="form-input" value="Dietaryplus - Sistema Redox" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Estado del Sistema</label>
+                                <div style="padding: 12px 16px; background: #d4edda; color: #155724; border-radius: 8px;">
+                                    ✅ Sistema funcionando correctamente
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Modal</h2>
+                <button class="modal-close" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-content" id="modalContent">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variables globales
+        let currentSection = 'dashboard';
+        let sidebarCollapsed = false;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard Redox cargado correctamente');
+            updateConnectionStatus('connected', 'Sistema Activo');
+        });
+        
+        // Navegación
+        function showSection(sectionName) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar la sección seleccionada
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Actualizar navegación activa
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Actualizar título
+            const titles = {
+                dashboard: 'Dashboard',
+                pacientes: 'Gestión de Pacientes',
+                planes: 'Gestión de Planes',
+                seguimiento: 'Seguimiento Diario',
+                analisis: 'Análisis y Reportes',
+                configuracion: 'Configuración'
+            };
+            
+            document.getElementById('pageTitle').textContent = titles[sectionName];
+            currentSection = sectionName;
+        }
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.querySelector('.sidebar-toggle');
+            
+            sidebarCollapsed = !sidebarCollapsed;
+            
+            if (sidebarCollapsed) {
+                sidebar.classList.add('collapsed');
+                toggleBtn.textContent = '→';
+            } else {
+                sidebar.classList.remove('collapsed');
+                toggleBtn.textContent = '←';
+            }
+        }
+        
+        // Modales
+        function openModal(type) {
+            const overlay = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const content = document.getElementById('modalContent');
+            
+            switch(type) {
+                case 'nuevo-paciente':
+                    title.textContent = 'Nuevo Paciente';
+                    content.innerHTML = getNuevoPacienteForm();
+                    break;
+                case 'generar-plan':
+                    title.textContent = 'Generar Plan Redox';
+                    content.innerHTML = getGenerarPlanForm();
+                    break;
+                case 'seguimiento-diario':
+                    title.textContent = 'Seguimiento Diario';
+                    content.innerHTML = getSeguimientoForm();
+                    break;
+                default:
+                    title.textContent = 'Funcionalidad';
+                    content.innerHTML = '<p>Funcionalidad "' + type + '" en desarrollo</p>';
+            }
+            
+            overlay.classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+        
+        // Formularios
+        function getNuevoPacienteForm() {
+            return `
+                <form onsubmit="event.preventDefault(); guardarPaciente();">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Nombre Completo *</label>
+                                <input type="text" class="form-input" id="nombreCompleto" placeholder="Nombre y apellidos" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-input" id="emailPaciente" placeholder="email@ejemplo.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-input" id="telefonoPaciente" placeholder="+34 XXX XXX XXX">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Condición Principal</label>
+                                <select class="form-select" id="condicionPrincipal">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="sop">SOP</option>
+                                    <option value="estreñimiento">Estreñimiento</option>
+                                    <option value="perdida-peso">Pérdida de peso</option>
+                                    <option value="inflamacion">Inflamación sistémica</option>
+                                    <option value="fatiga-cronica">Fatiga crónica</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Objetivo del Tratamiento</label>
+                                <input type="text" class="form-input" id="objetivoTratamiento" placeholder="Ej: Pérdida de peso, regulación hormonal...">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notas</label>
+                                <textarea class="form-textarea" id="notasPaciente" placeholder="Información adicional, alergias, medicamentos..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; text-align: right;">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+                    </div>
+                </form>
+            `;
+        }
+        
+        function getGenerarPlanForm() {
+            return `
+                <form onsubmit="event.preventDefault(); generarPlan();">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Paciente *</label>
+                                <select class="form-select" id="pacientePlan" required>
+                                    <option value="">Seleccionar paciente...</option>
+                                    <option value="1">María García</option>
+                                    <option value="2">Carlos López</option>
+                                    <option value="3">Ana Rodríguez</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Condición Principal *</label>
+                                <select class="form-select" id="condicionPlan" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="sop">SOP (Síndrome Ovario Poliquístico)</option>
+                                    <option value="estreñimiento">Estreñimiento Severo</option>
+                                    <option value="perdida-peso">Pérdida de Peso</option>
+                                    <option value="inflamacion">Inflamación Sistémica</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Duración (semanas)</label>
+                                <select class="form-select" id="duracionPlan">
+                                    <option value="4">4 semanas</option>
+                                    <option value="8" selected>8 semanas</option>
+                                    <option value="12">12 semanas</option>
+                                    <option value="16">16 semanas</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Terapias Físicas</label>
+                                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" checked> Terapia Infrarrojo
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox" checked> Termogénesis
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Estimulación Vagal
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Técnicas Respiración
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Exclusiones</label>
+                                <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Sin Gluten
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Sin Lácteos
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Sin Frutos Secos
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 8px;">
+                                        <input type="checkbox"> Sin Huevos
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; text-align: right;">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Generar Plan Redox</button>
+                    </div>
+                </form>
+            `;
+        }
+        
+        function getSeguimientoForm() {
+            return `
+                <form onsubmit="event.preventDefault(); guardarSeguimiento();">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Paciente *</label>
+                                <select class="form-select" id="pacienteSeguimiento" required>
+                                    <option value="">Seleccionar paciente...</option>
+                                    <option value="1">María García</option>
+                                    <option value="2">Carlos López</option>
+                                    <option value="3">Ana Rodríguez</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fecha</label>
+                                <input type="date" class="form-input" id="fechaSeguimiento" value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Energía (1-10)</label>
+                                <input type="range" min="1" max="10" value="5" class="form-input" id="energiaNivel" oninput="updateRangeValue('energiaNivel', 'energiaValue')">
+                                <div style="text-align: center; margin-top: 4px; font-size: 14px; color: var(--text-secondary);" id="energiaValue">5</div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label">Peso (kg)</label>
+                                <input type="number" class="form-input" id="pesoKg" step="0.1" placeholder="70.5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Adherencia (%)</label>
+                                <input type="range" min="0" max="100" value="80" class="form-input" id="adherenciaPlan" oninput="updateRangeValue('adherenciaPlan', 'adherenciaValue', '%')">
+                                <div style="text-align: center; margin-top: 4px; font-size: 14px; color: var(--text-secondary);" id="adherenciaValue">80%</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Notas</label>
+                                <textarea class="form-textarea" id="notasSeguimiento" placeholder="Observaciones del día..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; text-align: right;">
+                        <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Seguimiento</button>
+                    </div>
+                </form>
+            `;
+        }
+        
+        // Funciones utilitarias
+        function updateRangeValue(rangeId, displayId, suffix = '') {
+            const value = document.getElementById(rangeId).value;
+            document.getElementById(displayId).textContent = value + suffix;
+        }
+        
+        function updateConnectionStatus(status, text) {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = 'connection-status ' + status;
+            statusElement.innerHTML = '<span>●</span> ' + text;
+        }
+        
+        function showNotification(mensaje, tipo = 'info') {
+            const existente = document.querySelector('.notification');
+            if (existente) existente.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = 'notification ' + tipo;
+            notification.textContent = mensaje;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Funciones de guardado
+        function guardarPaciente() {
+            const nombre = document.getElementById('nombreCompleto').value;
+            const email = document.getElementById('emailPaciente').value;
+            
+            if (!nombre || !email) {
+                showNotification('Por favor complete los campos obligatorios', 'error');
+                return;
+            }
+            
+            showNotification('Paciente guardado correctamente', 'success');
+            closeModal();
+            refreshData();
+        }
+        
+        function generarPlan() {
+            const paciente = document.getElementById('pacientePlan').value;
+            const condicion = document.getElementById('condicionPlan').value;
+            
+            if (!paciente || !condicion) {
+                showNotification('Por favor complete los campos obligatorios', 'error');
+                return;
+            }
+            
+            showNotification('Plan generado correctamente', 'success');
+            closeModal();
+            refreshData();
+        }
+        
+        function guardarSeguimiento() {
+            const paciente = document.getElementById('pacienteSeguimiento').value;
+            
+            if (!paciente) {
+                showNotification('Por favor seleccione un paciente', 'error');
+                return;
+            }
+            
+            showNotification('Seguimiento guardado correctamente', 'success');
+            closeModal();
+            refreshData();
+        }
+        
+        // Funciones de actualización
+        function refreshData() {
+            const refreshText = document.getElementById('refreshText');
+            refreshText.textContent = 'Actualizando...';
+            
+            setTimeout(function() {
+                refreshText.textContent = 'Actualizado ✓';
+                showNotification('Datos actualizados correctamente', 'success');
+                
+                setTimeout(function() {
+                    refreshText.textContent = 'Actualizar';
+                }, 2000);
+            }, 1000);
+        }
+        
+        function refreshActivity() {
+            showNotification('Actividad actualizada', 'info');
+        }
+        
+        // Event listeners
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+            
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        refreshData();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        openModal('nuevo-paciente');
+                        break;
+                    case 'g':
+                        e.preventDefault();
+                        openModal('generar-plan');
+                        break;
+                }
+            }
+        });
+        
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // Responsive
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('mobile-open') && !sidebarCollapsed) {
+                    sidebar.classList.add('collapsed');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Menús Redox - Sistema Completo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .connection-status {
+            background: #e74c3c;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .connection-status.connected {
+            background: #27ae60;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .form-section {
+            display: block;
+        }
+        
+        .preview-section {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .radio-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .radio-option:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .radio-option.selected {
+            border-color: #3498db;
+            background: #e3f2fd;
+        }
+        
+        .radio-option input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .option-content h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .option-content p {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .option-icon {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-right: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .actions {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .preview-menu {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .menu-table th {
+            background: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        
+        .menu-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.85em;
+            vertical-align: top;
+        }
+        
+        .menu-table .meal-label {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            width: 120px;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .debug-info {
+            display: none !important;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌱 Sistema de Planes Progresivos</h1>
+            <p>Filosofía Redox - Dietaryplus</p>
+        </div>
+        
+        <div id="connectionStatus" class="connection-status">
+            🔄 Conectando a base de datos...
+        </div>
+        
+        <div class="main-content">
+            <!-- FORMULARIO -->
+            <div class="form-section" id="formSection">
+                <div class="form-group">
+                    <label for="patientName">👤 Nombre del Paciente</label>
+                    <input type="text" id="patientName" placeholder="Ej: María García" required>
+                </div>
+				
+				<!-- En el header o donde corresponda -->
+<!-- Añadir en el menú principal -->
+<div class="navigation-menu" style="background: #f8f9fa; padding: 15px; text-align: center; border-bottom: 1px solid #dee2e6;">
+    <a href="gestion-pacientes.html" class="btn" target="_blank" style="margin: 5px;">
+        👥 Gestión de Pacientes
+    </a>
+    <a href="generador-planes-automatico.html" class="btn" target="_blank" style="margin: 5px;">
+        🤖 Generar Plan Automático
+    </a>
+    <a href="modulo-seguimiento.html" class="btn" target="_blank" style="margin: 5px;">
+        📊 Seguimiento Diario
+    </a>
+    <a href="dashboard-seguimiento.html" class="btn" target="_blank" style="margin: 5px;">
+        📈 Dashboard Análisis
+    </a>
+</div>
+                
+                <div class="form-group">
+                    <label>⏱️ Duración del Plan de Tratamiento</label>
+                    <div class="radio-group">
+                        <div class="radio-option" data-duration="4">
+                            <input type="radio" id="plan_4" name="duracion" value="4">
+                            <div class="option-content">
+                                <h3>Plan Intensivo - 4 Semanas</h3>
+                                <p>Tratamiento concentrado para resultados rápidos</p>
+                            </div>
+                            <div class="option-icon">🔥</div>
+                        </div>
+                        
+                        <div class="radio-option selected" data-duration="8">
+                            <input type="radio" id="plan_8" name="duracion" value="8" checked>
+                            <div class="option-content">
+                                <h3>Plan Estándar - 8 Semanas</h3>
+                                <p>Equilibrio entre intensidad y sostenibilidad</p>
+                            </div>
+                            <div class="option-icon">⚖️</div>
+                        </div>
+                        
+                        <div class="radio-option" data-duration="16">
+                            <input type="radio" id="plan_16" name="duracion" value="16">
+                            <div class="option-content">
+                                <h3>Plan Completo - 16 Semanas</h3>
+                                <p>Transformación integral con 4 fases progresivas</p>
+                            </div>
+                            <div class="option-icon">🎯</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>🎯 Condición Principal</label>
+                    <div class="radio-group" id="conditionOptions">
+                        <!-- Las opciones se cargarán dinámicamente desde Supabase -->
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn" id="generateBtn" onclick="generateMenu()" disabled>
+                        🚀 Generar Plan Redox
+                    </button>
+                </div>
+            </div>
+            
+            <!-- LOADING -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <h3>Generando tu plan personalizado...</h3>
+                <p>Consultando base de datos Redox...</p>
+            </div>
+            
+            <!-- PREVIEW -->
+            <div class="preview-section" id="previewSection">
+                <div class="success-message">
+                    ✅ <strong>Plan generado desde base de datos!</strong> Datos reales de Supabase.
+                </div>
+                
+                <div class="preview-menu" id="menuPreview">
+                    <!-- El menú se generará aquí dinámicamente -->
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="goBack()">
+                        ← Volver al Formulario
+                    </button>
+                    <button class="btn" onclick="downloadPDF()">
+                        📄 Descargar PDF
+                    </button>
+                </div>
+            </div>
+            
+            <!-- DEBUG INFO (oculto) -->
+            <div id="debugInfo" class="debug-info">
+                <strong>Debug Info:</strong><br>
+                <div id="debugContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- jsPDF para generar PDFs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Configuración -->
+    <script src="config-supabase.js"></script>
+    
+    <script>
+        // Variables globales
+        let supabase;
+        let protocolosDisponibles = [];
+        let alimentosDisponibles = [];
+        let menuGenerado = null;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', async function() {
+            setupDurationEventListeners();
+            await initSupabase();
+        });
+        
+        function setupDurationEventListeners() {
+            document.querySelectorAll('.radio-option[data-duration]').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Remover selección de otros
+                    document.querySelectorAll('.radio-option[data-duration]').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Seleccionar este
+                    this.classList.add('selected');
+                    
+                    showDebug(`Duración seleccionada: ${radio.value} semanas`);
+                });
+            });
+        }
+        
+        async function initSupabase() {
+            try {
+                if (typeof SUPABASE_CONFIG === 'undefined') {
+                    throw new Error('Archivo config-supabase.js no encontrado');
+                }
+                
+                await new Promise(resolve => {
+                    if (typeof window.supabase !== 'undefined') {
+                        resolve();
+                    } else {
+                        const checkSupabase = setInterval(() => {
+                            if (typeof window.supabase !== 'undefined') {
+                                clearInterval(checkSupabase);
+                                resolve();
+                            }
+                        }, 100);
+                    }
+                });
+                
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                
+                updateConnectionStatus('🔄 Conectando...', false);
+                
+                await loadData();
+                
+                updateConnectionStatus('✅ Conectado a Supabase', true);
+                document.getElementById('generateBtn').disabled = false;
+                
+            } catch (error) {
+                console.error('Error inicializando Supabase:', error);
+                updateConnectionStatus('❌ Error de conexión: ' + error.message, false);
+                showDebug('Error de conexión: ' + error.message);
+            }
+        }
+        
+        // Actualizar la función loadData para cargar también recetas
+async function loadData() {
+    try {
+        showDebug('Intentando cargar datos...');
+        
+        // Cargar protocolos
+        const { data: protocolos, error: errorProtocolos } = await supabase
+            .from('protocolos_condicion')
+            .select('*');
+        
+        if (errorProtocolos) {
+            showDebug('Error cargando protocolos: ' + JSON.stringify(errorProtocolos));
+            throw errorProtocolos;
+        }
+        
+        protocolosDisponibles = protocolos || [];
+        
+        // Cargar alimentos
+        const { data: alimentos, error: errorAlimentos } = await supabase
+            .from('alimentos_redox')
+            .select('*');
+        
+        if (errorAlimentos) {
+            showDebug('Error cargando alimentos: ' + JSON.stringify(errorAlimentos));
+            throw errorAlimentos;
+        }
+        
+        alimentosDisponibles = alimentos || [];
+        
+        // NUEVO: Cargar recetas completas
+        const { data: recetas, error: errorRecetas } = await supabase
+            .from('recetas_redox')
+            .select('*');
+        
+        if (errorRecetas) {
+            showDebug('Error cargando recetas: ' + JSON.stringify(errorRecetas));
+        } else {
+            window.recetasDisponibles = recetas || [];
+            showDebug(`Recetas cargadas: ${recetas?.length || 0}`);
+        }
+        
+        // NUEVO: Cargar sustituciones
+        const { data: sustituciones, error: errorSustituciones } = await supabase
+            .from('sustituciones_alimentos')
+            .select('*');
+        
+        if (errorSustituciones) {
+            showDebug('Error cargando sustituciones: ' + JSON.stringify(errorSustituciones));
+        } else {
+            window.sustitucionesDisponibles = sustituciones || [];
+            showDebug(`Sustituciones cargadas: ${sustituciones?.length || 0}`);
+        }
+        
+        renderConditionOptions();
+        
+        showDebug(`FINAL: ${protocolos?.length || 0} protocolos, ${alimentos?.length || 0} alimentos, ${recetas?.length || 0} recetas`);
+        
+    } catch (error) {
+        console.error('Error cargando datos:', error);
+        showDebug('ERROR TOTAL: ' + error.message);
+        throw error;
+    }
+}
+
+// NUEVA FUNCIÓN: Seleccionar receta inteligente
+function seleccionarRecetaInteligente(momento, condicion, numeroSemana, diaIndex) {
+    const recetas = window.recetasDisponibles || [];
+    
+    // Filtrar recetas por momento del día y condición
+    let recetasFiltradas = recetas.filter(r => {
+        const categoriaCorrecta = r.categoria === momento.toLowerCase() || 
+                                 (momento === 'DESAYUNO' && r.categoria === 'desayuno') ||
+                                 (momento === 'COMIDA' && r.categoria === 'comida') ||
+                                 (momento === 'CENA' && r.categoria === 'cena');
+        
+        const condicionAplicable = !r.condiciones_aplicables || 
+                                  r.condiciones_aplicables.includes(condicion) ||
+                                  r.condiciones_aplicables.length === 0;
+        
+        return categoriaCorrecta && condicionAplicable;
+    });
+    
+    // Si no hay recetas específicas, usar las genéricas
+    if (recetasFiltradas.length === 0) {
+        recetasFiltradas = recetas.filter(r => r.categoria === momento.toLowerCase());
+    }
+    
+    // Si aún no hay, usar cualquier receta
+    if (recetasFiltradas.length === 0) {
+        recetasFiltradas = recetas;
+    }
+    
+    if (recetasFiltradas.length === 0) {
+        return 'Sin receta disponible';
+    }
+    
+    // Seleccionar receta con rotación
+    const indice = (numeroSemana + diaIndex) % recetasFiltradas.length;
+    const receta = recetasFiltradas[indice];
+    
+    // Aplicar variaciones según la semana
+    let preparacion = receta.preparacion_base;
+    if (receta.variaciones_preparacion && receta.variaciones_preparacion.length > 0) {
+        const variacionIndex = numeroSemana % receta.variaciones_preparacion.length;
+        if (variacionIndex > 0) {
+            preparacion = receta.variaciones_preparacion[variacionIndex - 1];
+        }
+    }
+    
+    // Generar descripción completa de la receta
+    let descripcionCompleta = `**${receta.nombre}**`;
+    if (preparacion !== receta.preparacion_base) {
+        descripcionCompleta += ` (${preparacion})`;
+    }
+    
+    // Añadir ingredientes principales si están disponibles
+    if (receta.ingredientes_secundarios && receta.ingredientes_secundarios.length > 0) {
+        const ingredientesResumidos = receta.ingredientes_secundarios.slice(0, 3).join(', ');
+        descripcionCompleta += ` • ${ingredientesResumidos}`;
+        if (receta.ingredientes_secundarios.length > 3) {
+            descripcionCompleta += ` y más`;
+        }
+    }
+    
+    return {
+        nombre: receta.nombre,
+        descripcion: descripcionCompleta,
+        ingrediente_principal: receta.ingrediente_principal,
+        ingredientes_secundarios: receta.ingredientes_secundarios || [],
+        instrucciones: receta.instrucciones,
+        tiempo_preparacion: receta.tiempo_preparacion,
+        preparacion: preparacion
+    };
+}
+        
+        function renderConditionOptions() {
+            const container = document.getElementById('conditionOptions');
+            
+            if (!container) {
+                showDebug('ERROR: Container conditionOptions no encontrado');
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            if (protocolosDisponibles.length === 0) {
+                container.innerHTML = '<p style="color: red; padding: 20px;">❌ No se encontraron protocolos en la base de datos</p>';
+                return;
+            }
+            
+            const iconos = {
+                'estreñimiento': '💧',
+                'sop': '⚖️', 
+                'perdida-peso': '📉',
+                'inflamacion': '🔥'
+            };
+            
+            protocolosDisponibles.forEach((protocol, index) => {
+                const div = document.createElement('div');
+                div.className = 'radio-option';
+                div.dataset.condition = protocol.condicion_principal;
+                
+                div.innerHTML = `
+                    <input type="radio" id="${protocol.condicion_principal}" name="condition" value="${protocol.condicion_principal}">
+                    <div class="option-content">
+                        <h3>${protocol.nombre_protocolo}</h3>
+                        <p>${protocol.descripcion_protocolo ? protocol.descripcion_protocolo.substring(0, 100) + '...' : 'Sin descripción'}</p>
+                    </div>
+                    <div class="option-icon">${iconos[protocol.condicion_principal] || '🎯'}</div>
+                `;
+                
+                div.addEventListener('click', function() {
+                    const radio = div.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    container.querySelectorAll('.radio-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    div.classList.add('selected');
+                    
+                    showDebug(`Seleccionado: ${protocol.condicion_principal}`);
+                });
+                
+                container.appendChild(div);
+            });
+            
+            showDebug(`Opciones renderizadas exitosamente: ${protocolosDisponibles.length}`);
+        }
+        
+        async function generateMenu() {
+            const patientName = document.getElementById('patientName').value.trim();
+            const condition = document.querySelector('input[name="condition"]:checked');
+            const duracion = document.querySelector('input[name="duracion"]:checked');
+            
+            if (!patientName || !condition || !duracion) {
+                alert('Por favor, completa todos los campos');
+                return;
+            }
+            
+            document.getElementById('formSection').style.display = 'none';
+            document.getElementById('loadingSection').style.display = 'block';
+            
+            try {
+                const plan = await createProgressivePlan(condition.value, patientName, parseInt(duracion.value));
+                menuGenerado = plan;
+                
+                displayPlanPreview(plan);
+                
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('previewSection').style.display = 'block';
+                
+                showDebug(`Plan de ${duracion.value} semanas generado exitosamente`);
+                
+            } catch (error) {
+                console.error('Error generando plan:', error);
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('formSection').style.display = 'block';
+                
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `❌ Error generando plan: ${error.message}`;
+                document.getElementById('formSection').appendChild(errorDiv);
+                
+                showDebug('Error: ' + error.message);
+            }
+        }
+        
+        async function createProgressivePlan(condicion, paciente, semanasDuracion) {
+            showDebug(`Creando plan progresivo: ${condicion}, ${semanasDuracion} semanas`);
+            
+            const protocolo = protocolosDisponibles.find(p => p.condicion_principal === condicion);
+            if (!protocolo) throw new Error('Protocolo no encontrado');
+            
+            const { data: fases, error: errorFases } = await supabase
+                .from('planes_tratamiento')
+                .select('*')
+                .eq('condicion_principal', condicion)
+                .eq('duracion_semanas', semanasDuracion)
+                .order('fase');
+                
+            const { data: progresion, error: errorProgresion } = await supabase
+                .from('menu_progresion')
+                .select('*')
+                .eq('condicion_principal', condicion)
+                .lte('numero_semana', semanasDuracion)
+                .order('numero_semana');
+                
+            showDebug(`Fases cargadas: ${fases?.length || 0}, Progresión: ${progresion?.length || 0}`);
+            
+            const plan = {
+                paciente: paciente,
+                condicion: protocolo.nombre_protocolo,
+                duracion: semanasDuracion,
+                protocolo_base: protocolo.descripcion_protocolo,
+                tipo: fases && fases.length > 0 ? 'progresivo' : 'basico',
+                fases: fases || [],
+                semanas: []
+            };
+            
+            for (let semana = 1; semana <= semanasDuracion; semana++) {
+                const progresionSemana = progresion?.find(p => p.numero_semana === semana);
+                const fase = fases?.find(f => f.fase === progresionSemana?.fase) || fases?.[0];
+                
+                const semanaData = await createWeeklyMenu(
+                    condicion, 
+                    semana, 
+                    fase, 
+                    progresionSemana,
+                    protocolo
+                );
+                
+                plan.semanas.push(semanaData);
+            }
+            
+            return plan;
+        }
+        
+        async function createWeeklyMenu(condicion, numeroSemana, fase, progresion, protocolo) {
+            const alimentosRelevantes = alimentosDisponibles.filter(a => {
+                if (condicion === 'estreñimiento') {
+                    if (fase && fase.fase === 1) {
+                        return ['grasa', 'proteina'].includes(a.categoria);
+                    } else {
+                        return ['grasa', 'fermentado', 'verdura', 'proteina'].includes(a.categoria);
+                    }
+                }
+                return true;
+            });
+            
+            const dias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+            
+            const semanaMenu = {
+                numero_semana: numeroSemana,
+                fase: fase?.fase || 1,
+                nombre_fase: fase?.nombre_fase || 'Fase Base',
+                objetivos_fase: fase?.objetivos_fase || [],
+                enfoque_semanal: progresion?.enfoque_semanal || `Semana ${numeroSemana} - Seguimiento protocolo base`,
+                horarios: protocolo.horarios_comidas,
+                momentos: protocolo.momentos_dia,
+                semana: []
+            };
+            
+            dias.forEach((dia, diaIndex) => {
+                const diaMenu = {
+                    dia: dia,
+                    comidas: []
+                };
+                
+                protocolo.momentos_dia.forEach((momento, momentoIndex) => {
+                    let alimentoSeleccionado = seleccionarAlimentoPorFase(
+                        alimentosRelevantes,
+                        momento,
+                        condicion,
+                        fase?.fase || 1,
+                        (diaIndex + numeroSemana)
+                    );
+                    
+                    diaMenu.comidas.push({
+                        momento: momento,
+                        horario: protocolo.horarios_comidas[momentoIndex] || '',
+                        alimento: alimentoSeleccionado
+                    });
+                });
+                
+                semanaMenu.semana.push(diaMenu);
+            });
+            
+            return semanaMenu;
+        }
+        
+        // Actualizar función para usar recetas completas
+function seleccionarAlimentoPorFase(alimentos, momento, condicion, fase, variacionIndex) {
+    // Intentar usar recetas completas primero
+    const receta = seleccionarRecetaInteligente(momento, condicion, fase, variacionIndex);
+    
+    if (receta && typeof receta === 'object') {
+        // Aplicar sustituciones si es necesario
+        const recetaConSustituciones = aplicarSustituciones(receta, condicion);
+        return recetaConSustituciones.descripcion;
+    }
+    
+    // Fallback al sistema anterior si no hay recetas
+    let alimentosFiltrados = alimentos;
+    
+    if (momento === 'DESAYUNO') {
+        alimentosFiltrados = alimentos.filter(a => 
+            a.timing_optimo && (
+                a.timing_optimo.includes('desayuno') || 
+                a.categoria === 'proteina'
+            )
+        );
+    } else if (momento === 'COMIDA') {
+        alimentosFiltrados = alimentos.filter(a => 
+            a.timing_optimo && (
+                a.timing_optimo.includes('comida') ||
+                ['proteina', 'verdura'].includes(a.categoria)
+            )
+        );
+    }
+    
+    if (fase === 1) {
+        alimentosFiltrados = alimentosFiltrados.filter(a => 
+            ['proteina', 'grasa'].includes(a.categoria)
+        );
+    }
+    
+    if (alimentosFiltrados.length === 0) alimentosFiltrados = alimentos;
+    
+    const indice = variacionIndex % alimentosFiltrados.length;
+    const alimento = alimentosFiltrados[indice];
+    
+    let descripcion = alimento.nombre;
+    if (alimento.preparaciones && alimento.preparaciones.length > 0) {
+        const prep = alimento.preparaciones[variacionIndex % alimento.preparaciones.length];
+        descripcion += ` (${prep})`;
+    }
+    
+    if (fase === 1) {
+        descripcion += ' • Fase inicial';
+    } else if (fase >= 3) {
+        descripcion += ' • Variedad ampliada';
+    }
+    
+    return descripcion;
+}
+
+// NUEVA FUNCIÓN: Aplicar sustituciones automáticas
+function aplicarSustituciones(receta, condicion) {
+    const sustituciones = window.sustitucionesDisponibles || [];
+    
+    // Buscar si algún ingrediente necesita sustitución
+    let recetaModificada = { ...receta };
+    let sustitucionAplicada = false;
+    
+    // Verificar ingrediente principal
+    const sustitucionPrincipal = sustituciones.find(s => 
+        s.alimento_original === receta.ingrediente_principal &&
+        (!s.condiciones_aplicables || s.condiciones_aplicables.includes(condicion))
+    );
+    
+    if (sustitucionPrincipal) {
+        recetaModificada.ingrediente_principal = sustitucionPrincipal.alimento_sustituto;
+        recetaModificada.descripcion = recetaModificada.descripcion.replace(
+            receta.ingrediente_principal,
+            sustitucionPrincipal.alimento_sustituto
+        );
+        sustitucionAplicada = true;
+    }
+    
+    // Verificar ingredientes secundarios
+    if (receta.ingredientes_secundarios) {
+        recetaModificada.ingredientes_secundarios = receta.ingredientes_secundarios.map(ingrediente => {
+            const sustitucion = sustituciones.find(s => 
+                s.alimento_original === ingrediente &&
+                (!s.condiciones_aplicables || s.condiciones_aplicables.includes(condicion))
+            );
+            
+            if (sustitucion) {
+                sustitucionAplicada = true;
+                return sustitucion.alimento_sustituto;
+            }
+            return ingrediente;
+        });
+        
+        // Actualizar descripción con ingredientes sustituidos
+        if (sustitucionAplicada) {
+            const ingredientesResumidos = recetaModificada.ingredientes_secundarios.slice(0, 3).join(', ');
+            const parteInicial = recetaModificada.descripcion.split(' • ')[0];
+            recetaModificada.descripcion = `${parteInicial} • ${ingredientesResumidos}`;
+            if (recetaModificada.ingredientes_secundarios.length > 3) {
+                recetaModificada.descripcion += ` y más`;
+            }
+        }
+    }
+    
+    // Añadir nota de sustitución si se aplicó alguna
+    if (sustitucionAplicada) {
+        recetaModificada.descripcion += ' (adaptado)';
+    }
+    
+    return recetaModificada;
+}
+        
+        function displayPlanPreview(plan) {
+            const preview = document.getElementById('menuPreview');
+            
+            let html = `
+                <h3>📋 Plan Progresivo para: ${plan.paciente}</h3>
+                <p><strong>Condición:</strong> ${plan.condicion}</p>
+                <p><strong>Duración:</strong> ${plan.duracion} semanas</p>
+                <p><strong>Tipo:</strong> ${plan.tipo === 'progresivo' ? 'Plan con fases progresivas' : 'Plan básico'}</p>
+                
+                ${plan.fases && plan.fases.length > 0 ? `
+                    <div style="background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 8px;">
+                        <h4>📈 Fases del Tratamiento:</h4>
+                        ${plan.fases.map((fase, index) => `
+                            <div style="margin: 10px 0; padding: 10px; background: white; border-radius: 6px; border-left: 4px solid #3498db;">
+                                <strong>Fase ${fase.fase}: ${fase.nombre_fase}</strong><br>
+                                <small style="color: #666;">${fase.descripcion_fase}</small><br>
+                                <em>Objetivos: ${fase.objetivos_fase?.join(', ') || 'No especificados'}</em>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <div style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 8px;">
+                    ${plan.semanas.map((semana, index) => `
+                        <div style="margin: 20px 0; padding: 15px; background: ${index % 2 === 0 ? '#f8f9fa' : 'white'};">
+                            <h4 style="color: #2c3e50; margin-bottom: 10px;">
+                                📅 Semana ${semana.numero_semana} 
+                                ${semana.nombre_fase ? `- ${semana.nombre_fase}` : ''}
+                            </h4>
+                            ${semana.enfoque_semanal ? `<p style="color: #666; font-style: italic; margin-bottom: 15px;">🎯 ${semana.enfoque_semanal}</p>` : ''}
+                            
+                            <table class="menu-table" style="margin-bottom: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 100px;">Horario</th>
+                                        <th>LUN</th><th>MAR</th><th>MIÉ</th><th>JUE</th><th>VIE</th><th>SÁB</th><th>DOM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${semana.momentos.map((momento, momentoIndex) => `
+                                        <tr>
+                                            <td class="meal-label">${momento}<br><small>${semana.horarios[momentoIndex] || ''}</small></td>
+                                            ${semana.semana.map(dia => {
+                                                const comida = dia.comidas.find(c => c.momento === momento);
+                                                return `<td style="font-size: 0.75em;">${comida ? comida.alimento : ''}</td>`;
+                                            }).join('')}
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <p style="text-align: center; margin-top: 20px; color: #666;">
+                    <strong>✅ Plan progresivo generado desde base de datos Supabase</strong><br>
+                    ${plan.duracion} semanas • ${plan.fases?.length || 0} fases • ${alimentosDisponibles.length} alimentos disponibles
+                </p>
+            `;
+            
+            preview.innerHTML = html;
+        }
+        
+        function downloadPDF() {
+            if (!menuGenerado) {
+                alert('No hay menú generado para descargar');
+                return;
+            }
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                const primaryColor = [44, 62, 80];
+                const secondaryColor = [52, 152, 219];
+                
+                let yPosition = 30;
+                const pageWidth = doc.internal.pageSize.width;
+                const leftMargin = 20;
+                const rightMargin = 20;
+                const contentWidth = pageWidth - leftMargin - rightMargin;
+                
+                // ENCABEZADO PRINCIPAL
+                doc.setFillColor(...primaryColor);
+                doc.rect(0, 0, pageWidth, 45, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(22);
+                doc.text('PLAN DE TRATAMIENTO REDOX', pageWidth / 2, 20, { align: 'center' });
+                
+                doc.setFontSize(14);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`${menuGenerado.duracion} Semanas • Filosofía Redox • Dietaryplus`, pageWidth / 2, 32, { align: 'center' });
+                
+                yPosition = 55;
+                
+                // INFORMACIÓN DEL PLAN
+                doc.setTextColor(...primaryColor);
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(16);
+                doc.text('INFORMACIÓN DEL PLAN', leftMargin, yPosition);
+                yPosition += 12;
+                
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(11);
+                doc.text(`Paciente: ${menuGenerado.paciente}`, leftMargin, yPosition);
+                yPosition += 7;
+                doc.text(`Condición: ${menuGenerado.condicion}`, leftMargin, yPosition);
+                yPosition += 7;
+                doc.text(`Duración: ${menuGenerado.duracion} semanas`, leftMargin, yPosition);
+                yPosition += 7;
+                doc.text(`Tipo de plan: ${menuGenerado.tipo === 'progresivo' ? 'Plan progresivo con fases' : 'Plan básico'}`, leftMargin, yPosition);
+                yPosition += 7;
+                doc.text(`Fecha de creación: ${new Date().toLocaleDateString('es-ES')}`, leftMargin, yPosition);
+                yPosition += 15;
+                
+                // FASES DEL TRATAMIENTO
+                if (menuGenerado.fases && menuGenerado.fases.length > 0) {
+                    if (yPosition > 200) {
+                        doc.addPage();
+                        yPosition = 30;
+                    }
+                    
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(16);
+                    doc.text('FASES DEL TRATAMIENTO', leftMargin, yPosition);
+                    yPosition += 15;
+                    
+                    menuGenerado.fases.forEach((fase, index) => {
+                        if (yPosition > 250) {
+                            doc.addPage();
+                            yPosition = 30;
+                        }
+                        
+                        doc.setFillColor(240, 240, 240);
+                        doc.rect(leftMargin, yPosition - 5, contentWidth, 15, 'F');
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(12);
+                        doc.text(`FASE ${fase.fase}: ${fase.nombre_fase}`, leftMargin + 5, yPosition + 5);
+                        yPosition += 20;
+                        
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(10);
+                        if (fase.descripcion_fase) {
+                            const descLines = doc.splitTextToSize(fase.descripcion_fase, contentWidth - 10);
+                            doc.text(descLines, leftMargin + 5, yPosition);
+                            yPosition += descLines.length * 5 + 5;
+                        }
+                        
+                        if (fase.objetivos_fase && fase.objetivos_fase.length > 0) {
+                            doc.setFont('helvetica', 'bold');
+                            doc.text('Objetivos:', leftMargin + 5, yPosition);
+                            yPosition += 5;
+                            doc.setFont('helvetica', 'normal');
+                            fase.objetivos_fase.forEach(objetivo => {
+                                doc.text(`• ${objetivo}`, leftMargin + 10, yPosition);
+                                yPosition += 5;
+                            });
+                            yPosition += 5;
+                        }
+                    });
+                }
+                
+                // MENÚS SEMANALES
+				
+menuGenerado.semanas.forEach((semana, semanaIndex) => {
+    doc.addPage();
+    yPosition = 30;
+    
+    doc.setFillColor(...secondaryColor);
+    doc.rect(0, 0, pageWidth, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.text(`SEMANA ${semana.numero_semana}`, pageWidth / 2, 15, { align: 'center' });
+    
+    if (semana.nombre_fase) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(semana.nombre_fase, pageWidth / 2, 25, { align: 'center' });
+    }
+    
+    yPosition = 45;
+    
+    if (semana.enfoque_semanal) {
+        doc.setTextColor(...primaryColor);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Enfoque de la semana:', leftMargin, yPosition);
+        yPosition += 8;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const enfoqueLines = doc.splitTextToSize(semana.enfoque_semanal, contentWidth);
+        doc.text(enfoqueLines, leftMargin, yPosition);
+        yPosition += enfoqueLines.length * 5 + 10;
+    }
+    
+    // Tabla con días de la semana
+    const dias = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'];
+    const cellWidth = contentWidth / 8; // 7 días + 1 columna de horarios
+    const cellHeight = 18;
+    
+    // Encabezados de la tabla
+    doc.setFillColor(240, 240, 240);
+    doc.rect(leftMargin, yPosition, cellWidth, cellHeight, 'F');
+    doc.setTextColor(...primaryColor);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.text('HORARIO', leftMargin + cellWidth/2, yPosition + 12, { align: 'center' });
+    
+    dias.forEach((dia, index) => {
+        const xPos = leftMargin + cellWidth * (index + 1);
+        doc.rect(xPos, yPosition, cellWidth, cellHeight, 'F');
+        doc.setFontSize(7);
+        doc.text(dia, xPos + cellWidth/2, yPosition + 12, { align: 'center' });
+    });
+    
+    yPosition += cellHeight;
+    
+    // Filas de cada momento del día
+    semana.momentos.forEach((momento, momentoIndex) => {
+        const horario = semana.horarios[momentoIndex] || '';
+        
+        if (yPosition > 260) {
+            doc.addPage();
+            yPosition = 30;
+            
+            // Repetir encabezados en nueva página
+            doc.setFillColor(240, 240, 240);
+            doc.rect(leftMargin, yPosition, cellWidth, cellHeight, 'F');
+            doc.setTextColor(...primaryColor);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8);
+            doc.text('HORARIO', leftMargin + cellWidth/2, yPosition + 12, { align: 'center' });
+            
+            dias.forEach((dia, index) => {
+                const xPos = leftMargin + cellWidth * (index + 1);
+                doc.rect(xPos, yPosition, cellWidth, cellHeight, 'F');
+                doc.setFontSize(7);
+                doc.text(dia, xPos + cellWidth/2, yPosition + 12, { align: 'center' });
+            });
+            
+            yPosition += cellHeight;
+        }
+        
+        // Celda de horario
+        doc.setFillColor(248, 249, 250);
+        doc.rect(leftMargin, yPosition, cellWidth, cellHeight, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.text(momento, leftMargin + cellWidth/2, yPosition + 8, { align: 'center' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6);
+        doc.text(horario, leftMargin + cellWidth/2, yPosition + 14, { align: 'center' });
+        
+        // Celdas de alimentos por día
+        semana.semana.forEach((dia, diaIndex) => {
+            const xPos = leftMargin + cellWidth * (diaIndex + 1);
+            doc.rect(xPos, yPosition, cellWidth, cellHeight);
+            
+            const comida = dia.comidas.find(c => c.momento === momento);
+            if (comida && comida.alimento) {
+                doc.setFontSize(6);
+                
+                if (comida.alimento.includes('**') && comida.alimento.includes('•')) {
+                    // Es una receta estructurada
+                    const partes = comida.alimento.split('•');
+                    const nombreReceta = partes[0].replace(/\*\*/g, '').trim();
+                    const ingredientes = partes[1] ? partes[1].trim() : '';
+                    
+                    doc.setFont('helvetica', 'bold');
+                    const nombreText = doc.splitTextToSize(nombreReceta, cellWidth - 4);
+                    const nombreLines = Math.min(nombreText.length, 1);
+                    
+                    for (let i = 0; i < nombreLines; i++) {
+                        doc.text(nombreText[i], xPos + 2, yPosition + 4 + (i * 3));
+                    }
+                    
+                    if (ingredientes && cellHeight > 12) {
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(5);
+                        const ingredientesText = doc.splitTextToSize(ingredientes, cellWidth - 4);
+                        const ingredientesLines = Math.min(ingredientesText.length, 2);
+                        
+                        for (let i = 0; i < ingredientesLines; i++) {
+                            doc.text(ingredientesText[i], xPos + 2, yPosition + 8 + (i * 3));
+                        }
+                    }
+                } else {
+                    // Texto simple
+                    const alimentoText = doc.splitTextToSize(comida.alimento, cellWidth - 4);
+                    const textLines = Math.min(alimentoText.length, 3);
+                    
+                    for (let i = 0; i < textLines; i++) {
+                        doc.text(alimentoText[i], xPos + 2, yPosition + 6 + (i * 4));
+                    }
+                }
+            }
+        });
+        
+        yPosition += cellHeight;
+    });
+    
+    // RECETAS DE LA SEMANA (en la misma página)
+    if (yPosition < 200) {
+        yPosition += 10;
+        doc.setTextColor(...primaryColor);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('RECETAS DE ESTA SEMANA:', leftMargin, yPosition);
+        yPosition += 10;
+        
+        // Mostrar solo las recetas usadas en esta semana específica
+        const recetasSemana = new Set();
+        semana.semana.forEach(dia => {
+            dia.comidas.forEach(comida => {
+                if (comida.alimento && comida.alimento.includes('**')) {
+                    const nombreReceta = comida.alimento.split('•')[0].replace(/\*\*/g, '').trim();
+                    recetasSemana.add(nombreReceta);
+                }
+            });
+        });
+        
+        const recetas = window.recetasDisponibles || [];
+        Array.from(recetasSemana).forEach(nombreReceta => {
+            const receta = recetas.find(r => r.nombre === nombreReceta);
+            if (!receta || yPosition > 250) return;
+            
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.text(`• ${receta.nombre}`, leftMargin + 5, yPosition);
+            yPosition += 6;
+            
+            if (receta.instrucciones && yPosition < 260) {
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                const instruccionCorta = receta.instrucciones.substring(0, 120) + '...';
+                const instruccionesLines = doc.splitTextToSize(instruccionCorta, contentWidth - 10);
+                instruccionesLines.slice(0, 2).forEach(linea => {
+                    doc.text(linea, leftMargin + 10, yPosition);
+                    yPosition += 4;
+                });
+                yPosition += 3;
+            }
+        });
+    }
+});
+
+// PÁGINA DE RECETAS COMPLETAS
+doc.addPage();
+yPosition = 30;
+
+// Encabezado de recetas
+doc.setFillColor(...secondaryColor);
+doc.rect(0, 0, pageWidth, 35, 'F');
+doc.setTextColor(255, 255, 255);
+doc.setFont('helvetica', 'bold');
+doc.setFontSize(18);
+doc.text('RECETAS COMPLETAS DEL PLAN', pageWidth / 2, 20, { align: 'center' });
+
+yPosition = 45;
+
+// Recopilar todas las recetas únicas usadas en el plan
+const recetasUsadas = new Set();
+menuGenerado.semanas.forEach(semana => {
+    semana.semana.forEach(dia => {
+        dia.comidas.forEach(comida => {
+            if (comida.alimento && comida.alimento.includes('**')) {
+                const nombreReceta = comida.alimento.split('•')[0].replace(/\*\*/g, '').trim();
+                recetasUsadas.add(nombreReceta);
+            }
+        });
+    });
+});
+
+// Mostrar cada receta completa
+const recetas = window.recetasDisponibles || [];
+Array.from(recetasUsadas).forEach(nombreReceta => {
+    const receta = recetas.find(r => r.nombre === nombreReceta);
+    if (!receta) return;
+    
+    // Verificar espacio para nueva receta
+    if (yPosition > 220) {
+        doc.addPage();
+        yPosition = 30;
+    }
+    
+    // Nombre de la receta
+    doc.setTextColor(...primaryColor);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(receta.nombre, leftMargin, yPosition);
+    yPosition += 8;
+    
+    // Información básica
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    const info = `Tiempo: ${receta.tiempo_preparacion || 15} min • Dificultad: ${receta.dificultad || 'fácil'} • Porciones: ${receta.porciones || 1}`;
+    doc.text(info, leftMargin, yPosition);
+    yPosition += 10;
+    
+    // Ingredientes
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Ingredientes:', leftMargin, yPosition);
+    yPosition += 6;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    if (receta.ingrediente_principal) {
+        doc.text(`• ${receta.ingrediente_principal} (principal)`, leftMargin + 5, yPosition);
+        yPosition += 5;
+    }
+    
+    if (receta.ingredientes_secundarios) {
+        receta.ingredientes_secundarios.forEach(ingrediente => {
+            doc.text(`• ${ingrediente}`, leftMargin + 5, yPosition);
+            yPosition += 5;
+        });
+    }
+    
+    yPosition += 3;
+    
+    // Instrucciones
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Preparación:', leftMargin, yPosition);
+    yPosition += 6;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    if (receta.instrucciones) {
+        const instruccionesLines = doc.splitTextToSize(receta.instrucciones, contentWidth - 10);
+        instruccionesLines.forEach(linea => {
+            if (yPosition > 270) {
+                doc.addPage();
+                yPosition = 30;
+            }
+            doc.text(linea, leftMargin + 5, yPosition);
+            yPosition += 5;
+        });
+    }
+    
+    yPosition += 10;
+});
+
+// PIE DE PÁGINA
+const totalPages = doc.internal.getNumberOfPages();
+for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    
+    doc.setDrawColor(...primaryColor);
+    doc.line(leftMargin, 280, pageWidth - rightMargin, 280);
+    
+    doc.setTextColor(100, 100, 100);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.text('Generado por Dietaryplus • Filosofía Redox', leftMargin, 290);
+    doc.text(`Página ${i} de ${totalPages}`, pageWidth - rightMargin, 290, { align: 'right' });
+    doc.text(new Date().toLocaleDateString('es-ES'), pageWidth / 2, 290, { align: 'center' });
+}
+
+const fileName = `Plan_Redox_${menuGenerado.duracion}sem_${menuGenerado.paciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
+doc.save(fileName);
+
+const successDiv = document.createElement('div');
+successDiv.className = 'success-message';
+successDiv.innerHTML = `✅ <strong>Plan PDF descargado:</strong> ${fileName} (${totalPages} páginas)`;
+document.getElementById('previewSection').appendChild(successDiv);
+
+setTimeout(() => {
+    successDiv.remove();
+}, 5000);
+
+} catch (error) {
+    console.error('Error generando PDF:', error);
+    alert('Error generando PDF: ' + error.message);
+}
+}
+
+function updateConnectionStatus(message, isConnected) {
+    const statusDiv = document.getElementById('connectionStatus');
+    statusDiv.textContent = message;
+    statusDiv.className = `connection-status ${isConnected ? 'connected' : ''}`;
+}
+
+function showDebug(message) {
+    const debugDiv = document.getElementById('debugInfo');
+    const debugContent = document.getElementById('debugContent');
+    
+    debugContent.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+    debugDiv.scrollTop = debugDiv.scrollHeight;
+}
+
+function goBack() {
+    document.getElementById('previewSection').style.display = 'none';
+    document.getElementById('formSection').style.display = 'block';
+    
+    const errorMessages = document.querySelectorAll('.error-message');
+    errorMessages.forEach(msg => msg.remove());
+}
+</script>
+</body>
+</html>
